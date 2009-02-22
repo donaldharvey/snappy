@@ -31,6 +31,31 @@ class Actions(gtk.Window):
 			gtk.main_quit()
 			self.escaped == True
 	#This is our main drawing function
+	def image_area_expose(self, widget, event):
+		img = cairo.ImageSurface.create_from_png(self.filename)
+		imgwidth = img.get_width()
+		imgheight = img.get_height()
+		imgpat = cairo.SurfacePattern(img)
+		cr = widget.window.cairo_create()
+		(width, height) = widget.window.get_size()
+		width = float(width)
+		height = float(height)
+		imgwidth = float(imgwidth)
+		imgheight = float(imgheight)
+		if imgwidth >= width or imgheight >= height:
+			if width > height:
+				scaleratio = imgwidth / width
+			else:
+				scaleratio = imgheight / height
+			scaler = cairo.Matrix()
+			scaler.scale(scaleratio, scaleratio)
+			imgpat.set_matrix(scaler)
+			imgpat.set_filter(cairo.FILTER_BEST)
+
+			print scaleratio
+		cr.set_source(imgpat)
+		cr.paint()
+		
 	def expose(self, widget, event):
 		global supports_alpha
 
@@ -69,6 +94,42 @@ class Actions(gtk.Window):
 		gtk.main_quit()
 		return 'failed!'
 
+
+	def set_image_size(self, image):
+		imagewidth = image.get_width()
+		imageheight = image.get_height()
+		screenheight = gtk.gdk.screen_height()
+		screenwidth = gtk.gdk.screen_width()
+		maxwidth = screenwidth - 20
+		maxheight = screenheight - 110
+		ratio = float(imagewidth) / float(imageheight)
+		mustscale = False
+		if imageheight >= maxheight:
+			print 'hi - height = ' + str(imageheight)
+			print ratio
+			areaheight = maxheight
+			mustscale = True
+		if imagewidth >= maxwidth:
+			print 'hi - width = ' + str(imagewidth)
+			areawidth = maxwidth
+			mustscale = True
+			
+		if mustscale:
+			if ratio >= 1 and maxheight > imageheight: #Width > height in this case.
+				areawidth = maxwidth
+				areaheight = (1 / ratio) * maxwidth
+			else:
+				areawidth = ratio * maxheight
+				areaheight = maxheight
+		else:
+			print "This doesn't have to scale!"
+			print ratio
+			print str(imagewidth) + ' x ' + str(imageheight)
+			areawidth = imagewidth
+			areaheight = imageheight
+		print "It works"
+		print (int(areawidth), int(areaheight))
+		return int(areawidth), int(areaheight)
 	def screen_changed(self, widget, old_screen=None):
 
 		global supports_alpha
@@ -93,7 +154,8 @@ class Actions(gtk.Window):
 		widget.window.set_cursor(cursor)
 	#This is the main function. Basically it sets all the window properties and
 	#hooks up all the events.
-	def __init__(self, filename):
+	def __init__(self, filename, isvideo):
+		self.filename = filename
 		global win
 
 		win = gtk.Window()
@@ -111,14 +173,22 @@ class Actions(gtk.Window):
 		win.connect('realize', self.realize)
 		hbox = gtk.HBox(False, 0)
 		vbox = gtk.VBox(False, 0)
-		image = gtk.Image()
-		image.set_from_file(filename)
-		vbox.pack_start(image, True, False, 0)
+		if not isvideo:
+			image = gtk.gdk.pixbuf_new_from_file(filename)
+			areawidth, areaheight = self.set_image_size(image)
+			print 'This is not a video! LOL!'
+		else:
+			#Code for handling videos goes here!
+			pass
+		imagearea = gtk.DrawingArea()
+		imagearea.set_size_request(areawidth, areaheight)
+		imagearea.connect("expose-event", self.image_area_expose)
+		vbox.pack_start(imagearea, True, False, 0)
 		
 		hbox.pack_start(vbox, True, False, 0)
 		
 		win.add(hbox)
-		image.show()
+		imagearea.show()
 		vbox.show()
 		hbox.show()
 		win.show_all()
@@ -127,7 +197,7 @@ class Actions(gtk.Window):
 		gtk.main()
 		return True
 if __name__ == '__main__':
-	actions = Actions('/home2/donald/Screenshot-3.png')
+	actions = Actions('/home2/donald/Screenshot-3.png', False)
 	actions.main()
 
 

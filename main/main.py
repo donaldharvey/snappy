@@ -14,6 +14,7 @@ from config import *
 from datetime import datetime, date, time
 #from pysnap.main.areaselect import SelectArea
 from areaselect import SelectArea
+from actions import Actions
 ## End Imports
 def FTPupload(filename, path):
 	try:
@@ -45,20 +46,22 @@ def takeScreenshot(self, statusicon):
 		pb = pb.get_from_drawable(w,w.get_colormap(), areaselect.getselection('x'),areaselect.getselection('y'),0,0,areaselect.getselection('width'),areaselect.getselection('height'))
 		pb.save(path, 'png')
 		print "Screenshot saved to " + path + ". OMGWTFBBQ IT WORKS!"
-		url = 'http://' + FTPupload(filename, path)
+		#url = 'http://' + FTPupload(filename, path)
+		actions = Actions(path, False)
+		actions.main()
 		print path
 
-		if url:
-			#Epic pynotify stuff.
-			pynotify.init("PySnap")
-			notification = pynotify.Notification("Screenshot saved to " + url, "Epic win! Screenshot saved in the temp folder... but--oh my!--this message is about to self destruct!", "dialog-warning")
-			notification.set_urgency(pynotify.URGENCY_NORMAL)
-			notification.set_timeout(10000)
-			notification.attach_to_status_icon(statusicon)
-			notification.show()
+		#if url:
+		#	#Epic pynotify stuff.
+		#	pynotify.init("PySnap")
+		#	notification = pynotify.Notification("Screenshot saved to " + url, "Epic win! Screenshot saved in the temp folder... but--oh my!--this message is about to self destruct!", "dialog-warning")
+		#	notification.set_urgency(pynotify.URGENCY_NORMAL)
+		#	notification.set_timeout(10000)
+		#	notification.attach_to_status_icon(statusicon)
+		#	notification.show()
 
-			clipboard = gtk.clipboard_get("CLIPBOARD")
-			clipboard.set_text(url)
+		#	clipboard = gtk.clipboard_get("CLIPBOARD")
+		#	clipboard.set_text(url)
 
 	return filename
 
