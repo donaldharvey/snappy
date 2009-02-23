@@ -173,6 +173,8 @@ class Actions(gtk.Window):
 		win.connect('realize', self.realize)
 		hbox = gtk.HBox(False, 0)
 		vbox = gtk.VBox(False, 0)
+		actionshbox = gtk.HBox(False, 0)
+		actionshboxcontainer = gtk.HBox(False, 0)
 		if not isvideo:
 			image = gtk.gdk.pixbuf_new_from_file(filename)
 			areawidth, areaheight = self.set_image_size(image)
@@ -183,14 +185,26 @@ class Actions(gtk.Window):
 		imagearea = gtk.DrawingArea()
 		imagearea.set_size_request(areawidth, areaheight)
 		imagearea.connect("expose-event", self.image_area_expose)
-		vbox.pack_start(imagearea, True, False, 0)
+		hbox.pack_start(imagearea, True, False, 0)
+		button1 = gtk.Button("HI!")
+		button2 = gtk.Button("HI!")
+		button3 = gtk.Button("HI!")
+		vbox.pack_start(hbox, True, False, 0)
+		vbox.pack_start(actionshboxcontainer, True, False, 0)
+		actionshboxcontainer.pack_start(actionshbox, True, False, 0)
+		actionshbox.pack_start(button1, False, False, 0)
+		actionshbox.pack_start(button2, False, False, 0)
+		actionshbox.pack_start(button3, False, False, 0)
+		button1.show()
+		button2.show()
+		button3.show()	
 		
-		hbox.pack_start(vbox, True, False, 0)
-		
-		win.add(hbox)
+		win.add(vbox)
 		imagearea.show()
 		vbox.show()
 		hbox.show()
+		
+		
 		win.show_all()
 		pass
 	def main(self):

@@ -66,27 +66,12 @@ def takeScreenshot(self, statusicon):
 	return filename
 
 class screenshotWin:
-	#def screenshotwindow(self, widget, data=None):
-		#self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-		#self.window.connect('expose-event', expose)
-		#colormap = self.window.get_screen().get_rgba_colormap()
-		#if colormap:
-		#	self.window.set_colormap(colormap)
-		#screenshot = gtk.Image()
-		#screenshot.set_from_image(takeScreenshot())
-		#screenshot.show()
-		#self.window.add(screenshot)
-		#self.window.fullscreen()
-		#self.window.show()
-	# activate callback
 	def popup(self, widget, button, time, data=None):
 		if button == 3:
 			if data:
 				data.show_all()
 				data.popup(None, None, None, 3, time)
 		pass
-
-
 
 # Show_Hide callback
 	def show_hide(self, widget,response_id, data= None):
@@ -130,6 +115,7 @@ class screenshotWin:
 
 		menu.set_title('Popup example')
 		self.statusicon.connect("popup_menu", self.popup, menu)
+		self.statusicon.connect("activate", takeScreenshot, self.statusicon)
 		self.statusicon.set_visible(True)
 			
 	def main(self):
