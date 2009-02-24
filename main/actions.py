@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
-
 #All imports we need
 import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+print sys.path
 import gobject
 import pango
 import pygtk
@@ -12,13 +13,13 @@ import gtk
 from gtk import gdk
 import cairo
 from datetime import datetime
-import math
+from snappy.main.config import enabledplugins
+from snappy.main.api import API, api
 
 if gtk.pygtk_version < (2,10,0):
 	print "PyGtk 2.10.0 or later required"
 	raise SystemExit
 
-#Yeah, globals. Warning: this code is messy
 supports_alpha = False
 win = None
 
@@ -30,6 +31,10 @@ class Actions(gtk.Window):
 			win.destroy()
 			gtk.main_quit()
 			self.escaped == True
+	def imageclick(self, widget, event, plugin):
+			if event.button == 1:
+				print 'Boo!'
+				plugin.callback(plugin)
 	#This is our main drawing function
 	def image_area_expose(self, widget, event):
 		img = cairo.ImageSurface.create_from_png(self.filename)
@@ -152,10 +157,11 @@ class Actions(gtk.Window):
 	def realize(self, widget):
 		cursor = gtk.gdk.Cursor(gtk.gdk.CROSSHAIR)
 		widget.window.set_cursor(cursor)
+	
 	#This is the main function. Basically it sets all the window properties and
 	#hooks up all the events.
-	def __init__(self, filename, isvideo):
-		self.filename = filename
+	def __init__(self, apiobject):
+		self.filename = apiobject.path
 		global win
 
 		win = gtk.Window()
@@ -175,10 +181,11 @@ class Actions(gtk.Window):
 		vbox = gtk.VBox(False, 0)
 		actionshbox = gtk.HBox(False, 0)
 		actionshboxcontainer = gtk.HBox(False, 0)
-		if not isvideo:
-			image = gtk.gdk.pixbuf_new_from_file(filename)
+		if not "video" in apiobject.mimetype:
+			image = gtk.gdk.pixbuf_new_from_file(apiobject.path)
+			apiobject.size = (image.get_width(), image.get_height)
 			areawidth, areaheight = self.set_image_size(image)
-			print 'This is not a video! LOL!'
+			print 'This is not a video'
 		else:
 			#Code for handling videos goes here!
 			pass
@@ -186,19 +193,29 @@ class Actions(gtk.Window):
 		imagearea.set_size_request(areawidth, areaheight)
 		imagearea.connect("expose-event", self.image_area_expose)
 		hbox.pack_start(imagearea, True, False, 0)
-		button1 = gtk.Button("HI!")
-		button2 = gtk.Button("HI!")
-		button3 = gtk.Button("HI!")
+		
+		
 		vbox.pack_start(hbox, True, False, 0)
 		vbox.pack_start(actionshboxcontainer, True, False, 0)
 		actionshboxcontainer.pack_start(actionshbox, True, False, 0)
-		actionshbox.pack_start(button1, False, False, 0)
-		actionshbox.pack_start(button2, False, False, 0)
-		actionshbox.pack_start(button3, False, False, 0)
-		button1.show()
-		button2.show()
-		button3.show()	
 		
+		for pluginname in enabledplugins:
+			pluginmodule = 'snappy.plugins.' + pluginname + '.' + pluginname
+			imageeventbox = gtk.EventBox()
+			imageeventbox.set_visible_window(False)
+			actionshbox.pack_start(imageeventbox, True, True, 4)
+			try:
+				exec('from ' + pluginmodule + ' import ' + pluginname + ' as plugin')
+				print 'Imported ' + pluginname + ' plugin.'
+				icon = gtk.Image()
+				icon.set_from_file('../plugins/' + pluginname + '/' + plugin.icon)
+				imageeventbox.add(icon)
+				imageeventbox.connect('button-release-event', self.imageclick, plugin)
+				print plugin.icon
+				icon.show()
+				imageeventbox.show()
+			except ImportError:
+				print 'No script in the ' + pluginname + ' directory.'
 		win.add(vbox)
 		imagearea.show()
 		vbox.show()
@@ -211,7 +228,11 @@ class Actions(gtk.Window):
 		gtk.main()
 		return True
 if __name__ == '__main__':
-	actions = Actions('/home2/donald/Screenshot-3.png', False)
+	api.image.filename = "Screenshot-3.png"
+	api.image.path = "/home2/donald/Screenshot-3.png"
+	api.image.mimetype = "image/png"
+	api.image.filesize = os.path.getsize(api.image.path)
+	actions = Actions(api.image)
 	actions.main()
 
 

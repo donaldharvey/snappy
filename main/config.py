@@ -6,3 +6,4 @@ ftpusername = "donald@9milesmedia.com"
 ftppassword = "changeme"
 ftpdirectory = "test"
 gconfset = True
+enabledplugins = ['ftp', 'flickr']
