@@ -48,9 +48,10 @@ class Actions(gtk.Window):
 			win.destroy()
 			gtk.main_quit()
 			self.escaped == True
-	def imageclick(self, widget, event, plugin):
+	def imageclick(self, widget, event, plugin, titletext):
 			if event.button == 1:
 				print 'Boo!'
+				plugin.title = titletext
 				plugin.callback(plugin)
 	#This is our main drawing function
 	def image_area_expose(self, widget, event):
@@ -96,7 +97,7 @@ class Actions(gtk.Window):
 
 		#And draw everything we want
 
-		cr.set_source_rgba(0, 0, 0, 0.75)
+		cr.set_source_rgba(0, 0, 0, 0.90)
 		cr.rectangle(0, 0, float(width), float(height))
 		#cr.mask(pat)
 		cr.fill()
@@ -173,7 +174,7 @@ class Actions(gtk.Window):
 
 	def realize(self, widget):
 		cursor = gtk.gdk.Cursor(gtk.gdk.CROSSHAIR)
-		widget.window.set_cursor(cursor)
+		#widget.window.set_cursor(cursor)
 	
 	#This is the main function. Basically it sets all the window properties and
 	#hooks up all the events.
@@ -194,10 +195,7 @@ class Actions(gtk.Window):
 		win.set_decorated(False)
 		self.screen_changed(win)
 		win.connect('realize', self.realize)
-		hbox = gtk.HBox(False, 0)
-		vbox = gtk.VBox(False, 0)
-		actionshbox = gtk.HBox(False, 0)
-		actionshboxcontainer = gtk.HBox(False, 0)
+		## IMAGE/VIDEO HANDLING CODE:
 		if not "video" in apiobject.mimetype:
 			image = gtk.gdk.pixbuf_new_from_file(apiobject.path)
 			apiobject.size = (image.get_width(), image.get_height)
@@ -209,10 +207,40 @@ class Actions(gtk.Window):
 		imagearea = gtk.DrawingArea()
 		imagearea.set_size_request(areawidth, areaheight)
 		imagearea.connect("expose-event", self.image_area_expose)
-		hbox.pack_start(imagearea, True, False, 0)
+		## END IMAGE/VIDEO HANDLING CODE
 		
+		# CONTROLS CODE
+		titlefield = gtk.Entry(max=0)
+		titlefield.set_text(apiobject.title)
+		# END CONTROLS
+		
+		# Following container heirarchy is somewhat confusing, so
+		# I provided a handy reference.
+		# Heirarchy is:
+		# |vbox
+		# |____hbox
+		# |_________areawrapper
+		# |______________imagearea
+		# |______________controlshbox
+		# |
+		# |____actionshboxcontainer
+		# |_________actionshbox
+		# |______________[actions set]
+		
+		vbox = gtk.VBox(False, 0)
+		hbox = gtk.HBox(False, 0)
+		areawrapper = gtk.VBox(False, 0)
+		controlshbox = gtk.HBox(False, 0)
+		controlshbox.pack_end(titlefield, False, False, 0)
+		
+		actionshbox = gtk.HBox(False, 0)
+		actionshboxcontainer = gtk.HBox(False, 0)
 		
 		vbox.pack_start(hbox, True, False, 0)
+		hbox.pack_start(areawrapper, True, False, 0)
+		areawrapper.pack_start(imagearea, True, False, 0)
+		areawrapper.pack_start(controlshbox, True, False, 0)
+		
 		vbox.pack_start(actionshboxcontainer, True, False, 0)
 		actionshboxcontainer.pack_start(actionshbox, True, False, 0)
 		
@@ -227,7 +255,7 @@ class Actions(gtk.Window):
 				icon = gtk.Image()
 				icon.set_from_file('../plugins/' + pluginname + '/' + plugin.icon)
 				imageeventbox.add(icon)
-				imageeventbox.connect('button-release-event', self.imageclick, plugin)
+				imageeventbox.connect('button-release-event', self.imageclick, plugin, titlefield.get_text())
 				print plugin.icon
 				icon.show()
 				imageeventbox.show()
@@ -249,6 +277,7 @@ if __name__ == '__main__':
 	api.image.path = "/home2/donald/Screenshot-3.png"
 	api.image.mimetype = "image/png"
 	api.image.filesize = os.path.getsize(api.image.path)
+	api.image.title = 'Random image.'
 	actions = Actions(api.image)
 	actions.main()
 
