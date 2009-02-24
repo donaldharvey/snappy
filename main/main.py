@@ -1,8 +1,21 @@
 #!/usr/bin/env python
+# This file is part of Snappy.
+#
+# Snappy is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Snappy is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Snappy.  If not, see <http://www.gnu.org/licenses/>.
 
-## IMPORTS! Epic fun.
-print "This working?"
-##NEEDS python-gconf to run.
+## Imports:
+## TODO: Check for and implement gConf
 import sys
 sys.path.append('../..')
 import pygtk
@@ -13,7 +26,6 @@ import os, sys
 import time as ttime
 from snappy.main.config import *
 from datetime import datetime, date, time
-#from pysnap.main.areaselect import SelectArea
 from snappy.main.areaselect import SelectArea
 from snappy.main.actions import Actions
 from snappy.main.api import api
