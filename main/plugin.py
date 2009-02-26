@@ -30,6 +30,7 @@ class Plugin:
 	website = ""				# Plugin website
 	description = "" 			# The full description of the plugin.
 	callback = None 			# The callback to execute after the button in actions.py is pressed
+	guicallback = None			# The event to add all GUI widgets to the plugin settings dialog.
 	icon = "" 					# The icon filename (MUST be a PNG!)
 	class Settings:
 		_settingsdict = {}
@@ -59,9 +60,12 @@ class Plugin:
 				return key
 			else:
 				return False
+				
+				
 	settings = Settings()
-	def __init__(self, callbackname):
+	def __init__(self, callbackname, guicallbackname):
 		self.callback = callbackname
+		self.guicallback = guicallbackname
 
 	def setproperty(self, key, value):
 		if key == 'fullname':
@@ -78,7 +82,7 @@ class Plugin:
 def dothisnow(plugin):
 	print "Hi!"
 	print plugin.fullname
-plugin = Plugin(dothisnow)
+plugin = Plugin(dothisnow, dothisnow)
 plugin.setproperty('fullname', 'An Awesome Plugin')
 plugin.settings.add('foo', 'bar')
 plugin.callback(plugin)

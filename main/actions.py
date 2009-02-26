@@ -48,9 +48,11 @@ class Actions(gtk.Window):
 			win.destroy()
 			gtk.main_quit()
 			self.escaped == True
-	def imageclick(self, widget, event, plugin, titletext):
+	def imageclick(self, widget, event, plugin, titletext, widgetstohide):
 			if event.button == 1:
 				print 'Boo!'
+				for widgettohide in widgetstohide:
+					widgettohide.hide()
 				plugin.title = titletext
 				plugin.callback(plugin)
 	#This is our main drawing function
@@ -175,6 +177,7 @@ class Actions(gtk.Window):
 	def realize(self, widget):
 		cursor = gtk.gdk.Cursor(gtk.gdk.CROSSHAIR)
 		#widget.window.set_cursor(cursor)
+		
 	
 	#This is the main function. Basically it sets all the window properties and
 	#hooks up all the events.
@@ -255,7 +258,7 @@ class Actions(gtk.Window):
 				icon = gtk.Image()
 				icon.set_from_file('../plugins/' + pluginname + '/' + plugin.icon)
 				imageeventbox.add(icon)
-				imageeventbox.connect('button-release-event', self.imageclick, plugin, titlefield.get_text())
+				imageeventbox.connect('button-release-event', self.imageclick, plugin, titlefield.get_text(), (areawrapper, actionshboxcontainer))
 				print plugin.icon
 				icon.show()
 				imageeventbox.show()
@@ -265,8 +268,6 @@ class Actions(gtk.Window):
 		imagearea.show()
 		vbox.show()
 		hbox.show()
-		
-		
 		win.show_all()
 		pass
 	def main(self):

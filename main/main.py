@@ -27,10 +27,10 @@ import pynotify
 import os, sys
 import time as ttime
 from snappy.main.config import *
-from datetime import datetime, date, time
 from snappy.main.areaselect import SelectArea
 from snappy.main.actions import Actions
 from snappy.main.api import api
+from snappy.main.screenshot import Screenshot
 print sys.path
 ## End Imports
 def FTPupload(filename, path):
@@ -50,27 +50,15 @@ def FTPupload(filename, path):
 		return url
 
 def takeScreenshot(self, statusicon):
-	w = gtk.gdk.get_default_root_window()
-	sz = w.get_size()
 	#print "The size of the window is %d x %d" % sz
 	areaselect = SelectArea()
 	areaselect.main()
 	if not areaselect.escaped:
 		ttime.sleep(2)
-		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,areaselect.getselection('width'),areaselect.getselection('height'))
-		pb = pb.get_from_drawable(w,w.get_colormap(), areaselect.getselection('x'),areaselect.getselection('y'),0,0,areaselect.getselection('width'),areaselect.getselection('height'))
-		pb.save(api.image.path, 'png')
-		api.isvideo = False
-		api.image.filename = "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
-		api.image.path = "/tmp/" + "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
-		api.image.mimetype = "image/png"
-		api.image.title = "Screenshot taken at " + datetime.now().strftime("%H-%M-%S_%d-%m-%y")
-		api.image.size = (areaselect.getselection('width'), areaselect.getselection('height'))
-		print "Screenshot saved to " + api.path + "."
-		#url = 'http://' + FTPupload(filename, path)
-		actions = Actions(path, False)
+		screenshot = Screenshot()
+		screenshot.grabArea(areaselect.getselection('x'), areaselect.getselection('y'), areaselect.getselection('width'), areaselect.getselection('height'))
+		actions = Actions(api.image)
 		actions.main()
-		print path
 
 		#if url:
 		#	#Epic pynotify stuff.
@@ -83,8 +71,6 @@ def takeScreenshot(self, statusicon):
 
 		#	clipboard = gtk.clipboard_get("CLIPBOARD")
 		#	clipboard.set_text(url)
-
-	return filename
 
 class screenshotWin:
 	def popup(self, widget, button, time, data=None):

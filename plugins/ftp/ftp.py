@@ -22,7 +22,16 @@ from snappy.main.plugin import Plugin
 from snappy.main.api import api
 def ftpupload(plugin):
     print api.image.filename
-ftp = Plugin(ftpupload)
+def ftpgui(plugin, issettings):
+    if issettings:
+        #code to handle settings window goes here
+        pass
+    else:
+        #code to handle window after preview goes here
+        pass
+    pass
+ftp = Plugin(ftpupload, ftpgui)
 ftp.setproperty('icon', 'ftp.png')
-ftp.setproperty('fullname', 'Flickr Uploader')
-ftp.setproperty('description', 'Upload your screenshots to flickr.')
+ftp.setproperty('fullname', 'FTP Uploader')
+ftp.setproperty('description', 'Upload your screenshots to an FTP server.')
+ftp.setproperty('settingsGUImethod', ftpgui)

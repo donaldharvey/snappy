@@ -27,18 +27,15 @@ import gtk
 from gtk import gdk
 import cairo
 from datetime import datetime
-import math
 
 if gtk.pygtk_version < (2,10,0):
 	print "PyGtk 2.10.0 or later required"
 	raise SystemExit
 
-#Yeah, globals. Warning: this code is messy
 supports_alpha = False
 win = None
 
-#The following is just some magic mathematics to get the rectangle that's been selected (rect_selection).
-# Don't worry :P - it's not that difficult
+#Rect-selection mumbo jumbo
 class SelectArea(gtk.Window):
 	escaped = False
 	rect_selection = gtk.gdk.Rectangle(0, 0, 0, 0)
