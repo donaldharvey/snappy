@@ -20,7 +20,7 @@ import os
 from snappy.main.plugin import Plugin
 from snappy.main.api import api
 def ftpupload(plugin):
-    print api.image.filename
+    print api.image.path
 def ftpgui(plugin, issettings):
     if issettings:
         #code to handle settings window goes here

@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Snappy.  If not, see <http://www.gnu.org/licenses/>.
+import tempfile
 class API:
 	class Image:
 		filename = "" 
@@ -40,6 +41,7 @@ class API:
 			pass
 		pass #Add more items later.
 	os = ""
+	tempdir = tempfile.mkdtemp() + '/'
 api = API()
 	
 	

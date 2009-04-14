@@ -24,7 +24,7 @@ from datetime import datetime, date, time
 class Screenshot():
 	def grabArea(self, x, y, width, height):
 		api.image.filename = "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
-		api.image.path = "/tmp/" + "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
+		api.image.path = api.tempdir + "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
 		api.image.mimetype = "image/png"
 		api.image.title = "Screenshot taken at " + datetime.now().strftime("%H-%M-%S_%d-%m-%y")
 		api.image.size = (width, height)
