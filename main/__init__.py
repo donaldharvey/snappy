@@ -16,4 +16,4 @@
 # along with Snappy.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))

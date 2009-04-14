@@ -38,7 +38,8 @@ class API:
 	class Settings:
 		class Plugin:
 			pass
-		pass #Add more items later. 
+		pass #Add more items later.
+	os = ""
 api = API()
 	
 	

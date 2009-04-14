@@ -130,6 +130,7 @@ class SelectArea(gtk.Window):
 		win.queue_draw()
 		win.destroy()
 		gtk.main_quit()
+		
 	#This is our main drawing function
 	def expose(self, widget, event):
 		global supports_alpha
@@ -164,17 +165,17 @@ class SelectArea(gtk.Window):
 		dashes = [ 1.0, 2.0 ]
 		cr.set_source_rgba(1, 0.9, 0, 1)
 		cr.set_line_width(2)
-		cr.move_to(float(self.rect_selection.x), float(self.rect_selection.y))
-		cr.line_to(float(self.rect_selection.x + self.rect_selection.width), float(self.rect_selection.y))
-		cr.line_to(float(self.rect_selection.x + self.rect_selection.width), float(self.rect_selection.y + self.rect_selection.height))
-		cr.line_to(float(self.rect_selection.x), float(self.rect_selection.y + self.rect_selection.height))
+		cr.move_to(float(self.rect_selection.x - 1), float(self.rect_selection.y - 1))
+		cr.line_to(float(self.rect_selection.x + self.rect_selection.width + 1), float(self.rect_selection.y - 1))
+		cr.line_to(float(self.rect_selection.x + self.rect_selection.width + 1), float(self.rect_selection.y + self.rect_selection.height + 1))
+		cr.line_to(float(self.rect_selection.x - 1), float(self.rect_selection.y + self.rect_selection.height + 1))
 		cr.close_path()
 		cr.stroke()
 
-		if self.rect_selection.width > 0:
+		if self.rect_selection.width > 0 and self.rect_selection.height > 0:
 			pg = pangocairo.CairoContext(cr)
 			pgl = pg.create_layout()
-			pgfont = pango.FontDescription("sans bold 10")
+			pgfont = pango.FontDescription("sans bold 14")
 			pgfont.set_family("Helvetica")
 			pgl.set_text(str(self.rect_selection.width) + 'px x ' + str(self.rect_selection.height) + 'px')
 			pgl.set_font_description(pgfont)

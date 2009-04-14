@@ -35,6 +35,7 @@ class Screenshot():
 		pb.save(api.image.path, 'png')
 		api.isvideo = False
 		print "Screenshot saved to " + api.image.path + "."
-		return True
+		return True	
+screenshot = Screenshot()
 
 

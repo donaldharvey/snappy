@@ -18,47 +18,40 @@
 
 ## Imports:
 ## TODO: Check for and implement gConf
-import sys
-sys.path.append('../..')
+
 import pygtk
 pygtk.require('2.0')
 import gtk
 import pynotify
 import os, sys
+sys.path.append('../..')
 import time as ttime
 from snappy.main.config import *
 from snappy.main.areaselect import SelectArea
 from snappy.main.actions import Actions
 from snappy.main.api import api
 from snappy.main.screenshot import Screenshot
-print sys.path
-## End Imports
-def FTPupload(filename, path):
-	try:
-		ftp = FTP(ftpserver)
-		ftp.login(ftpusername,ftppassword)
-		ftp.cwd(ftpdirectory)
-		file = open(path)
-		ftp.storbinary("STOR " + filename, file)
-		ftp.quit()
-		file.close()
-		url = ftpserver + '/' + ftpdirectory + '/' + filename
-	except:
-		print sys.exc_info()
-	else:
-		print "Successfully uploaded " + filename + "."
-		return url
+from snappy.main.statusicon import StatusIcon
+if sys.platform == 'win32':
+	api.os = 'Windows'
+elif sys.platform == 'darwin':
+	api.os = 'Mac OS X'
+else:
+	api.os = 'Unix'
+	
 
-def takeScreenshot(self, statusicon):
-	#print "The size of the window is %d x %d" % sz
-	areaselect = SelectArea()
-	areaselect.main()
-	if not areaselect.escaped:
-		ttime.sleep(2)
-		screenshot = Screenshot()
-		screenshot.grabArea(areaselect.getselection('x'), areaselect.getselection('y'), areaselect.getselection('width'), areaselect.getselection('height'))
-		actions = Actions(api.image)
-		actions.main()
+
+## End Imports
+#def FTPupload(filename, path):
+#	try:
+#		ftp = FTP(ftpserver) ftp.login(ftpusername,ftppassword)
+#		ftp.cwd(ftpdirectory) file = open(path) ftp.storbinary("STOR " +
+#		filename, file) ftp.quit() file.close() url = ftpserver + '/' +
+#		ftpdirectory + '/' + filename
+#	except:
+#		print sys.exc_info()
+#	else:
+#		print "Successfully uploaded " + filename + "." return url
 
 		#if url:
 		#	#Epic pynotify stuff.
@@ -88,45 +81,19 @@ class screenshotWin:
 				widget.hide()
 
 	# destroy callback
-	def  destroy(widget, data=None):
-				gtk.main_quit()
+	def destroy(widget, data=None):
+		gtk.main_quit()
 
 
 	def __init__(self):
 		#builder = gtk.Builder()
 		#builder.add_from_file("settings.xml")
-
-
-		self.statusicon = gtk.StatusIcon()
-		self.statusicon.set_from_file("../resources/icon.png")
-		menu = gtk.Menu()
-
-		## Here be the menu item definitions.
-		item_screenshot = gtk.MenuItem("Take screenshot")
-		item_preferences = gtk.MenuItem("Preferences")
-		item_exit = gtk.MenuItem("Exit")
-
-		## Now we connect these to their handlers.
-		item_screenshot.connect("activate", takeScreenshot, self.statusicon)
-		#item_preferences.connect("activate", settingswindow) #This function doesn't exist yet!
-		item_exit.connect_object("activate", self.destroy, menu)
-
-		##And finally, add these to the menu.
-		menu.append(item_screenshot)
-		menu.append(item_preferences)
-		menu.append(item_exit)
-
-		item_screenshot.show()
-		item_preferences.show()
-		item_exit.show()
-
-		menu.set_title('Popup example')
-		self.statusicon.connect("popup_menu", self.popup, menu)
-		self.statusicon.connect("activate", takeScreenshot, self.statusicon)
-		self.statusicon.set_visible(True)
-			
+		statusicon = StatusIcon()
+		statusicon.main()
+		
 	def main(self):
 		gtk.main()
+		
 
 print __name__
 

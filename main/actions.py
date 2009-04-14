@@ -19,7 +19,7 @@
 #All imports we need
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+#sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 print sys.path
 import gobject
 import pango
@@ -213,6 +213,21 @@ class Actions(gtk.Window):
 		## END IMAGE/VIDEO HANDLING CODE
 		
 		# CONTROLS CODE
+		tagsbutton = gtk.Button("Tags")
+		tagsbutton.set_relief(gtk.RELIEF_NONE)
+		buttonstyle = tagsbutton.get_style().copy()
+		buttonstyle.bg[0] = gtk.gdk.Color(0,0,0)
+		buttonstyle.bg[1] = gtk.gdk.Color(0,0,0)
+		buttonstyle.bg[2] = gtk.gdk.Color(0,0,0)
+		buttonstyle.bg[3] = gtk.gdk.Color(0,0,0)
+		buttonstyle.bg[4] = gtk.gdk.Color(0,0,0)
+		buttonstyle.fg[0] = gtk.gdk.Color(255, 255, 255)
+		buttonstyle.fg[1] = gtk.gdk.Color(255, 255, 255)
+		buttonstyle.fg[2] = gtk.gdk.Color(255, 255, 255)
+		buttonstyle.fg[3] = gtk.gdk.Color(255, 255, 255)
+		buttonstyle.fg[4] = gtk.gdk.Color(255, 255, 255)
+		tagsbutton.set_style(buttonstyle)
+		
 		titlefield = gtk.Entry(max=0)
 		titlefield.set_text(apiobject.title)
 		# END CONTROLS
@@ -235,6 +250,7 @@ class Actions(gtk.Window):
 		areawrapper = gtk.VBox(False, 0)
 		controlshbox = gtk.HBox(False, 0)
 		controlshbox.pack_end(titlefield, False, False, 0)
+		controlshbox.pack_start(tagsbutton, False, False, 0)
 		
 		actionshbox = gtk.HBox(False, 0)
 		actionshboxcontainer = gtk.HBox(False, 0)
