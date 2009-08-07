@@ -36,6 +36,7 @@ class API:
 	video = Video()
 	isvideo = False #is the current item an image or video?
 	connected = False #is the user connected to the interwebs?
+	bytesuploaded = 0
 	class Settings:
 		class Plugin:
 			pass

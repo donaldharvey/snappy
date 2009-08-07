@@ -48,7 +48,9 @@ class Actions(gtk.Window):
 			self.destroy(widget)
 			gtk.main_quit()
 			self.escaped == True
+	
 	def imageclick(self, widget, event, plugin, titletext, widgetstohide):
+<<<<<<< HEAD:main/actions.py
 		global win
 		if event.button == 1:
 			print 'Boo!'
@@ -57,6 +59,26 @@ class Actions(gtk.Window):
 			self.plugin = plugin
 			self.destroy(widget)
 			#plugin.callback(plugin)
+=======
+<<<<<<< HEAD:main/actions.py
+			if event.button == 1:
+				print 'Boo!'
+				for widgettohide in widgetstohide:
+					widgettohide.hide()
+				plugin.title = titletext
+				plugin.callback(plugin)
+=======
+		global win
+		if event.button == 1:
+			print 'Boo!'
+			#for widgettohide in widgetstohide:
+			#	widgettohide.hide()
+			self.plugin = plugin
+			win.hide()
+			gtk.main_quit() 
+		
+>>>>>>> 89c7e19... Added working tr.im-ing.:main/actions.py
+>>>>>>> e6e1fdd... Added working tr.im-ing.:main/actions.py
 	#This is our main drawing function
 	def image_area_expose(self, widget, event):
 		img = cairo.ImageSurface.create_from_png(self.filename)

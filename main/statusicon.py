@@ -19,16 +19,14 @@ class StatusIcon:
 		pass
 	def destroy(widget, data=None):
 		gtk.main_quit()
-	
-	def keypress(self, widget, data=None):
-		print "Oh hey, is this guy bothering you?"
+
+
 	def main(self):
 		keybinding = GlobalKeyBinding('<Control><Shift><Alt>Print')
 		keybinding.connect('activate', self.takeScreenshot, self.statusicon, False)
 		keybinding.grab()
 		keybinding.start()
 		gtk.main()
-		
 	def takeScreenshot(self, widget, statusicon, isfullscreen):
 	#print "The size of the window is %d x %d" % sz
 		if not isfullscreen:
@@ -38,8 +36,29 @@ class StatusIcon:
 				screenshot.grabArea(areaselect.getselection('x'), areaselect.getselection('y'), areaselect.getselection('width'), areaselect.getselection('height'))
 				actions = Actions(api.image)
 				actions.main()
+<<<<<<< HEAD:main/statusicon.py
 				url = actions.plugin.callback(actions.plugin)
 				print url
+=======
+<<<<<<< HEAD:main/statusicon.py
+=======
+				url = actions.plugin.callback(actions.plugin)
+				import urllib
+				request = urllib.urlopen('http://api.tr.im/api/trim_url.json?url=%s&username=%s&password=%s' % (
+					urllib.quote(url),
+					'',
+					'',
+				))
+				response = request.read()
+				request.close()
+				import json
+				jsonresponse = json.loads(response)
+				clipboard = gtk.clipboard_get("CLIPBOARD")
+				clipboard.set_text(str(jsonresponse['url']))
+				
+				
+>>>>>>> 89c7e19... Added working tr.im-ing.:main/statusicon.py
+>>>>>>> e6e1fdd... Added working tr.im-ing.:main/statusicon.py
 			else:
 				print "User cancelled."
 		else:
@@ -49,14 +68,24 @@ class StatusIcon:
 			screenshot.grabArea(0, 0, width, height)
 			actions = Actions(api.image)
 			actions.main()
+			print 'Test'
 	def __init__(self):
 		gtk.threads_init()
 		self.statusicon = gtk.StatusIcon()
 		self.statusicon.set_from_file("../resources/icon.png")
 		menu = gtk.Menu()
+<<<<<<< HEAD:main/statusicon.py
 		client = gconf.client_get_default()
 #		client.add_dir('/apps/snappy/keybindings', gconf.CLIENT_PRELOAD_NONE)
 		client.set_string('/apps/snappy/keybindings/screengrab-area', '<Shift>Print')
+=======
+<<<<<<< HEAD:main/statusicon.py
+=======
+		#client = gconf.client_get_default()
+		#client.add_dir('/apps/snappy/keybindings', gconf.CLIENT_PRELOAD_NONE)
+		#client.set_string('/apps/snappy/keybindings/screengrab-area', '<Shift>Print')
+>>>>>>> 89c7e19... Added working tr.im-ing.:main/statusicon.py
+>>>>>>> e6e1fdd... Added working tr.im-ing.:main/statusicon.py
 		
 		## Here be the menu item definitions.
 		item_captureArea = gtk.MenuItem("Capture Area")
