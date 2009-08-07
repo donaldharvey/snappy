@@ -32,37 +32,7 @@ class Plugin:
 	callback = None 			# The callback to execute after the button in actions.py is pressed
 	guicallback = None			# The event to add all GUI widgets to the plugin settings dialog.
 	icon = "" 					# The icon filename (MUST be a PNG!)
-	class Settings:
-		_settingsdict = {}
-		def add(self, key, value):
-			if not key in self._settingsdict:
-				self._settingsdict[key] = value
-				return key
-			else:
-				return False
-			
-		def remove(self, key):
-			if key in self._settingsdict:
-				del self._settingsdict[key]
-				return True
-			else:
-				return False
-		
-		def get(self, key):
-			if key in self._settingsdict:
-				return self._settingsdict[key]
-			else:
-				return False
-		
-		def set(self, key, value):
-			if key in self._settingsdict:
-				self._settingsdict[key] = value
-				return key
-			else:
-				return False
-				
-				
-	settings = Settings()
+	settings = {}
 	def __init__(self, callbackname, guicallbackname):
 		self.callback = callbackname
 		self.guicallback = guicallbackname
@@ -79,13 +49,13 @@ class Plugin:
 		else:
 			print 'No such property.'
 	
-def dothisnow(plugin):
-	print "Hi!"
-	print plugin.fullname
-plugin = Plugin(dothisnow, dothisnow)
-plugin.setproperty('fullname', 'An Awesome Plugin')
-plugin.settings.add('foo', 'bar')
-plugin.callback(plugin)
+#def dothisnow(plugin):
+#	print "Hi!"
+#	print plugin.fullname
+#plugin = Plugin(dothisnow, dothisnow)
+#plugin.setproperty('fullname', 'An Awesome Plugin')
+#plugin.settings.add('foo', 'bar')
+#plugin.callback(plugin)
 
-listplugins('../plugins/')
+#listplugins('../plugins/')
 	

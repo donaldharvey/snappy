@@ -19,7 +19,7 @@
 #All imports we need
 import sys
 import os
-#sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 print sys.path
 import gobject
 import pango
@@ -39,22 +39,24 @@ if gtk.pygtk_version < (2,10,0):
 
 supports_alpha = False
 win = None
-
+gtk.threads_init()
 class Actions(gtk.Window):
 	escaped = False
 	def keypress(self, widget, event):
 		global win
 		if event.keyval == 65307:
-			win.destroy()
+			self.destroy(widget)
 			gtk.main_quit()
 			self.escaped == True
 	def imageclick(self, widget, event, plugin, titletext, widgetstohide):
-			if event.button == 1:
-				print 'Boo!'
-				for widgettohide in widgetstohide:
-					widgettohide.hide()
-				plugin.title = titletext
-				plugin.callback(plugin)
+		global win
+		if event.button == 1:
+			print 'Boo!'
+			for widgettohide in widgetstohide:
+				widgettohide.hide()
+			self.plugin = plugin
+			self.destroy(widget)
+			#plugin.callback(plugin)
 	#This is our main drawing function
 	def image_area_expose(self, widget, event):
 		img = cairo.ImageSurface.create_from_png(self.filename)

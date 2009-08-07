@@ -7,6 +7,8 @@ from snappy.main.screenshot import screenshot
 from snappy.main.areaselect import SelectArea
 from snappy.main.actions import Actions
 from snappy.main.api import api
+from snappy.main.keybindings import GlobalKeyBinding
+import gconf
 import time
 class StatusIcon:
 	def popup(self, widget, button, time, data=None):
@@ -21,6 +23,10 @@ class StatusIcon:
 	def keypress(self, widget, data=None):
 		print "Oh hey, is this guy bothering you?"
 	def main(self):
+		keybinding = GlobalKeyBinding('<Control><Shift><Alt>Print')
+		keybinding.connect('activate', self.takeScreenshot, self.statusicon, False)
+		keybinding.grab()
+		keybinding.start()
 		gtk.main()
 		
 	def takeScreenshot(self, widget, statusicon, isfullscreen):
@@ -32,6 +38,8 @@ class StatusIcon:
 				screenshot.grabArea(areaselect.getselection('x'), areaselect.getselection('y'), areaselect.getselection('width'), areaselect.getselection('height'))
 				actions = Actions(api.image)
 				actions.main()
+				url = actions.plugin.callback(actions.plugin)
+				print url
 			else:
 				print "User cancelled."
 		else:
@@ -42,9 +50,13 @@ class StatusIcon:
 			actions = Actions(api.image)
 			actions.main()
 	def __init__(self):
+		gtk.threads_init()
 		self.statusicon = gtk.StatusIcon()
 		self.statusicon.set_from_file("../resources/icon.png")
 		menu = gtk.Menu()
+		client = gconf.client_get_default()
+#		client.add_dir('/apps/snappy/keybindings', gconf.CLIENT_PRELOAD_NONE)
+		client.set_string('/apps/snappy/keybindings/screengrab-area', '<Shift>Print')
 		
 		## Here be the menu item definitions.
 		item_captureArea = gtk.MenuItem("Capture Area")
