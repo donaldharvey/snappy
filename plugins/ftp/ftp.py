@@ -17,16 +17,10 @@
 # along with Snappy.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import os
-<<<<<<< HEAD:plugins/ftp/ftp.py
-from snappy.main.plugin import Plugin
-from snappy.main.api import api
-def ftpupload(plugin):
-    print api.image.path
-def ftpgui(plugin, issettings):
-=======
 sys.path.append('../..')
 from snappy.main.plugin import Plugin
 from snappy.main import api
+import ConfigParser
 from threading import Thread, Lock
 from time import sleep
 import pynotify
@@ -60,7 +54,6 @@ def ftpupload(plugin):
             
             
 def ftpgui(plugin, issettings=False):
->>>>>>> 89c7e19... Added working tr.im-ing.:plugins/ftp/ftp.py
     if issettings:
         #code to handle settings window goes here
         pass
@@ -69,24 +62,19 @@ def ftpgui(plugin, issettings=False):
         pass
     pass
 ftp = Plugin(ftpupload, ftpgui)
-<<<<<<< HEAD:plugins/ftp/ftp.py
-ftp.setproperty('icon', 'ftp.png')
-ftp.setproperty('fullname', 'FTP Uploader')
-ftp.setproperty('description', 'Upload your screenshots to an FTP server.')
-ftp.setproperty('settingsGUImethod', ftpgui)
-=======
+config = ConfigParser.ConfigParser({ 'port': None, 'directory': '' }) #change to gconf later
+config.readfp(open('ftp.cfg'))
+
 ftp.settings = {
-    'server': '9milesmedia.com',
-    'directory': 'screenshots',
-    'port': None,
-    'username': '', #TODO: get from conf file
-    'password': '', #TODO: get from conf file
-    'baseurl': 'http://donaldharvey.co.uk/screenshots',
-    'addtoclipboard': True
+    'server': config.get('ftp', 'server'),
+    'directory': config.get('ftp', 'directory'),
+    'port': config.getint('ftp', 'port'),
+    'username': config.get('ftp', 'username'),
+    'password': config.get('ftp', 'password'),
+    'baseurl': config.get('ftp', 'baseurl'),
 }
 ftp.setproperty('icon', 'ftp.png')
 ftp.setproperty('fullname', 'FTP Uploader')
 ftp.setproperty('description', 'Upload your screenshots to an FTP server.')
 ftp.setproperty('settingsGUImethod', ftpgui)
     
->>>>>>> 89c7e19... Added working tr.im-ing.:plugins/ftp/ftp.py

@@ -33,6 +33,7 @@ class Plugin:
 	guicallback = None			# The event to add all GUI widgets to the plugin settings dialog.
 	icon = "" 					# The icon filename (MUST be a PNG!)
 	settings = {}
+	returnsurl = True
 	def __init__(self, callbackname, guicallbackname):
 		self.callback = callbackname
 		self.guicallback = guicallbackname
@@ -46,6 +47,8 @@ class Plugin:
 			self.description = value
 		elif key == 'icon':
 			self.icon = value
+		elif key == 'returnsurl':
+			self.returnsurl = value
 		else:
 			print 'No such property.'
 	
