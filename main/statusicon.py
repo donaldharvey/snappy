@@ -8,6 +8,7 @@ from snappy.main.areaselect import SelectArea
 from snappy.main.actions import Actions
 from snappy.main.api import api
 from snappy.main.keybindings import GlobalKeyBinding
+from snappy.main.config import *
 import gconf
 import time
 class StatusIcon:
@@ -41,8 +42,8 @@ class StatusIcon:
 					import urllib
 					request = urllib.urlopen('http://api.tr.im/api/trim_url.json?url=%s&username=%s&password=%s' % (
 						urllib.quote(url),
-						'' #Get from config,
-						'' #Get from config,
+						urlusername,
+						urlpassword
 					))
 					response = request.read()
 					request.close()

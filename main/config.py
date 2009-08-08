@@ -16,10 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Snappy.  If not, see <http://www.gnu.org/licenses/>.
 
-ftpserver = "9milesmedia.com"
-ftpport = ""
-ftpusername = "donald@9milesmedia.com"
-ftppassword = "changeme"
-ftpdirectory = "test"
+import ConfigParser, os
+
 gconfset = True
 enabledplugins = ['ftp', 'flickr']
+config = ConfigParser.ConfigParser() #change to gconf later
+print os.getcwd()
+config.readfp(open(os.path.join(os.path.dirname(__file__), 'config.cfg')))
+urlprovider = 'tr.im'
+try:
+	urlusername = config.get('urlprovider', 'username')
+	urlpassword = config.get('urlprovider', 'password')
+except Exception:
+	urlusername = ''
+	urlpassword = ''
+
+

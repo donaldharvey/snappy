@@ -62,13 +62,12 @@ def ftpgui(plugin, issettings=False):
         pass
     pass
 ftp = Plugin(ftpupload, ftpgui)
-config = ConfigParser.ConfigParser({ 'port': None, 'directory': '' }) #change to gconf later
-config.readfp(open('ftp.cfg'))
-
+config = ConfigParser.ConfigParser({ 'port': 0, 'directory': '' }) #change to gconf later
+print os.getcwd()
+config.readfp(open(os.path.join(os.path.dirname(__file__), 'ftp.cfg')))
 ftp.settings = {
     'server': config.get('ftp', 'server'),
     'directory': config.get('ftp', 'directory'),
-    'port': config.getint('ftp', 'port'),
     'username': config.get('ftp', 'username'),
     'password': config.get('ftp', 'password'),
     'baseurl': config.get('ftp', 'baseurl'),
