@@ -16,19 +16,25 @@
 # You should have received a copy of the GNU General Public License
 # along with Snappy.  If not, see <http://www.gnu.org/licenses/>.
 
-import ConfigParser, os
-
-gconfset = True
-enabledplugins = ['ftp', 'flickr']
-config = ConfigParser.ConfigParser() #change to gconf later
-print os.getcwd()
-config.readfp(open(os.path.join(os.path.dirname(__file__), 'config.cfg')))
-urlprovider = 'tr.im'
-try:
-	urlusername = config.get('urlprovider', 'username')
-	urlpassword = config.get('urlprovider', 'password')
-except Exception:
-	urlusername = ''
-	urlpassword = ''
-
-
+class Backend():
+	'''
+	A dummy backend implementation which the real backends inherit from.
+	Refer to this if building a new backend.
+	'''
+	
+	requiresNetwork = False
+	deps = () #List of strings representing distutils dependencies.
+	class Objects:
+		def getObject(self, type, identifier):
+			object = getattr(self, identifier)
+			print 'Object %s with id %s' % (object, identifier)
+			return object
+			
+		def setObject(self, type, object):
+			'''
+			Set an object. Object arg should be a tuple of its ID and its content.
+			'''
+			(identifier, content) = object
+			setattr(self, identifier, content)
+			print 'Object %s added' % identifier
+			return identifier
