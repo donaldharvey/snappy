@@ -23,7 +23,7 @@ class StatusIcon:
 
 
 	def main(self):
-		keybinding = GlobalKeyBinding('<Control><Shift><Alt>Print')
+		keybinding = GlobalKeyBinding('<Control>Print')
 		keybinding.connect('activate', self.takeScreenshot, self.statusicon, False)
 		keybinding.grab()
 		keybinding.start()

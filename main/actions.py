@@ -45,6 +45,7 @@ class Actions(gtk.Window):
 	def keypress(self, widget, event):
 		global win
 		if event.keyval == 65307:
+			win.hide()
 			self.destroy(widget)
 			gtk.main_quit()
 			self.escaped == True

@@ -175,13 +175,26 @@ class SelectArea(gtk.Window):
 		if self.rect_selection.width > 0 and self.rect_selection.height > 0:
 			pg = pangocairo.CairoContext(cr)
 			pgl = pg.create_layout()
+			(pglw, pglh) = pgl.get_pixel_size()
 			pgfont = pango.FontDescription("sans bold 14")
-			pgfont.set_family("Helvetica")
+			pgfont.set_family("MgOpen Moderna")
 			pgl.set_text(str(self.rect_selection.width) + 'px x ' + str(self.rect_selection.height) + 'px')
 			pgl.set_font_description(pgfont)
-			cr.move_to(float(self.rect_selection.x), float(self.rect_selection.y + self.rect_selection.height))
+			print 'Width, height = ' + str(pglw + self.rect_selection.width) + ', ' + str(pglh + self.rect_selection.height)
+			if self.rect_selection.width + pglw > width:
+				print 'Greater than win width'
+				pglx = float(width - pglw)
+				print pglx
+			else:
+				pglx = float(self.rect_selection.x)
+			if self.rect_selection.height + pglh > height:
+				print 'Greater than win height'
+				pgly = float(height - pglh)
+			else:
+				pgly = float(self.rect_selection.y)
+			cr.move_to(pglx, pgly)
 			pg.show_layout(pgl)
-		#This is of no importance ATM :P
+			
 		pm = gtk.gdk.Pixmap(None, width, height, 1)
 		pmcr = pm.cairo_create()
 		pmcr.rectangle(0, 0, float(width), float(height))
