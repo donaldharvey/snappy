@@ -1,2 +1,4 @@
 def main(args):
-	print 'This is awesome.'
+	from snappy.backends.filesystem.backend import filesystem
+	backend = filesystem()
+	print backend
