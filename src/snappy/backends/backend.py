@@ -24,17 +24,20 @@ class Backend():
 	
 	requiresNetwork = False
 	deps = () #List of strings representing distutils dependencies.
-	class Objects:
-		def getObject(self, type, identifier):
+	class dbObject(object):
+		def get(self, objtype, identifier):
 			object = getattr(self, identifier)
 			print 'Object %s with id %s' % (object, identifier)
 			return object
 			
-		def setObject(self, type, object):
+		def set(self, objtype, object):
 			'''
 			Set an object. Object arg should be a tuple of its ID and its content.
 			'''
 			(identifier, content) = object
 			setattr(self, identifier, content)
 			print 'Object %s added' % identifier
+			return identifier
+		
+		def delete(self, objtype, identifier):
 			return identifier
