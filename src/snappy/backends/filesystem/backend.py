@@ -2,7 +2,7 @@ from snappy.backends.backend import Backend
 import os
 import sys
 import unittest
-from snappy.db.model import Model
+from snappy.db import models
 class filesystem(Backend):
 	'''
 	Snappy's default backend - storing images/videos in the filesystem,
@@ -31,102 +31,86 @@ class filesystem(Backend):
 			os.mkdir(appdata)
 		return appdata
 	
-	def prepareSQL(self, Model):
-		for table in vars(Model):
-			if table[1] == '_':
-				continue
-			Table = getattr(Model, table)
-			print table, 'table:'
-			tableobj = Table()
-			fields = vars(tableobj)
-			for field in fields:
-				if field[0] == '_':
-					# don't include private or built-in instance variables in
-					# the field list
-					continue
-				print '....' + field, getattr(tableobj, field)
-				
-			tablesql = ('create table (?)', (fields)
-	def _sqliteCreateDB(self, dbpath, sql, returnConnection = False):
+	def _sqliteCreateDB(self, dbpath, model):
+		model = models.Model()
 		'''
-		Creates an sqlite DB at location dbpath.
+		Creates/syncs an sqlite DB at location dbpath.
 		Requires python 2.5 for sqlite3 module.
 		'''
-		import sqlite3
-		print dbpath
 		try:
-			connection = sqlite3.connect(dbpath)
+			import sqlobject
 		except Exception:
 			print 'Python sqlite import failed.'
 			return False
-		try:
-			c = connection.cursor()
-			c.execute(sql)
-			connection.commit()
-		except sqlite3.OperationalError:
-			# sounds like DB already exists; unlink and add again for now.
-			connection = False
+		if os.path.exists(dbpath):
 			os.remove(dbpath)
-			connection = sqlite3.connect(dbpath)
-			c = connection.cursor()
-			c.execute(sql)
-			connection.commit()
-		finally:
-			if not returnConnection:
-				return dbpath
-			return connection
+		print 'Attempting connection to', dbpath + '...'
+		connectionpath = 'sqlite://' + dbpath
+		connection = sqlobject.connectionForURI(connectionpath)
+		sqlobject.sqlhub.processConnection = connection
+		transaction = connection.transaction()
+		print 'Vars:', dir(model)
+		for table in dir(model): #FIXME: is there a better way to do this?
+			if table[0] == '_':
+				continue
+			Table = getattr(model, table)
+			Table.createTable()
+		transaction.commit(close = True)
+		return dbpath
 		
 	class dbObject(Backend.dbObject):
 		'''
 		A set of methods allowing one to get, set and delete values from the database.
 		This class uses model.py to get its model definitions.
 		'''
-		import sqlite3
 		
-		def __init__(self, connection, model=Model):
-			self.dbconnection = connection
+		def __init__(self, model = models.Model):
 			self.model = model
 			
 		def get(self, objtype, identifier):
 			'''
 			Returns a database object when supplied with an identifier and object type.
 			'''
-			connection = self.dbconnection
-			c = connection.cursor()
 			try:
-				ModelObj = getattr(self.model, objtype.lower().capitalize())
-				obj = ModelObj()
-				c = connection.cursor()
-				print 'select * from %s where %s=%s' % (objtype.lower(), obj.pk, identifier)
-				c.execute('select * from image')
-				for row in c:
-					print row
-				return True
-			except Exception as e:
-				print e
+				Table = getattr(self.model, objtype.lower().capitalize())
+			except Exception: #FIXME: Change to a more specific exception
 				return False
+			return Table.get(identifier)
 			
-		def set(self, objtype, data):
+		def set(self, objtype, data, identifier=False):
 			if not type(data) == dict:
 				raise __builtins__.TypeError
 				return False
-			connection = self.dbconnection
-			c = connection.cursor()
-			
-			
-			
-			return data
-		def delete(self, objtype, identifier):
+			try:
+				Table = getattr(self.model, objtype.lower().capitalize())
+			except Exception: #FIXME: Change to a more specific exception
+				return False
+			if not identifier:
+				obj = Table(**data)
+			else:
+				obj = Table.get(identifier)
+				obj.set(data)
 			return identifier
+			
+		def delete(self, objtype, identifier):
+			try:
+				Table = getattr(models.Model, objtype.lower().capitalize())
+			except Exception: #FIXME: Change to a more specific exception
+				return False
+			obj = Table.get(identifier)
+			del obj
+			return True
 		
 	
-	def __init__(self):
+	def __init__(self, osname = ""):
 		sql = "create table image(title text, content text)"
 		self.appdatadir = self._appDataDir()
 		dbpath = os.path.join(self.appdatadir, 'database.db')
 		print dbpath
-		sqlite = self._sqliteCreateDB(dbpath, sql, True)
-		self.dbobject = self.dbObject(sqlite)
-		print 'Preparing SQL:'
-		self.prepareSQL(Model)
-		print 'dbobj get returned ' + str(self.dbobject.get('image', 0))
+		print self._sqliteCreateDB(dbpath, models.Model)
+		self.dbobject = self.dbObject(models.Model)
+		print self.dbobject.set('category', {
+			'name': 'Awesome screenshots',
+			'parent': None
+		})
+		print 'dbobj get returned ' + str(self.dbobject.get('category', 1))
