@@ -1,5 +1,3 @@
 def main(args):
-	from snappy.backends.filesystem.backend import filesystem
-	
-	backend = filesystem('linux')
-	print backend
+	from snappy.ui.lin.statusicon import StatusIcon
+	statusicon = StatusIcon()

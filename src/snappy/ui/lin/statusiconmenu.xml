@@ -1,0 +1,17 @@
+<ui>
+	<popup name="StatusIconMenu">
+		<menuitem action="organiser" />
+		
+		<separator name="sep1" />
+		
+		<menuitem action="quickshot" />
+		<menuitem action="screenshot" />
+		<menuitem action="screencast" />
+		
+		<separator name="sep2" />
+		
+		<menuitem action="extensions" />
+		<menuitem action="about" />
+		<menuitem action="quit" />
+	</popup>
+</ui>
