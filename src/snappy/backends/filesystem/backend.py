@@ -3,7 +3,7 @@ import os
 import sys
 import unittest
 from snappy.db import models
-class filesystem(Backend):
+class Filesystem(Backend):
 	'''
 	Snappy's default backend - storing images/videos in the filesystem,
 	and metadata in an sqlite3 database.
@@ -87,6 +87,7 @@ class filesystem(Backend):
 				return False
 			if not identifier:
 				obj = Table(**data)
+				identifier = obj.id
 			else:
 				obj = Table.get(identifier)
 				obj.set(data)
@@ -102,15 +103,10 @@ class filesystem(Backend):
 			return True
 		
 	
-	def __init__(self, osname = ""):
-		sql = "create table image(title text, content text)"
+	def __init__(self):
 		self.appdatadir = self._appDataDir()
 		dbpath = os.path.join(self.appdatadir, 'database.db')
 		print dbpath
 		print self._sqliteCreateDB(dbpath, models.Model)
 		self.dbobject = self.dbObject(models.Model)
-		print self.dbobject.set('category', {
-			'name': 'Awesome screenshots',
-			'parent': None
-		})
-		print 'dbobj get returned ' + str(self.dbobject.get('category', 1))
+fsbackend = Filesystem()

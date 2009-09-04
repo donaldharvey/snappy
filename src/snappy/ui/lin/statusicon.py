@@ -30,17 +30,36 @@ class StatusIcon:
 		uimanager = gtk.UIManager()
 		self.actiongroup = gtk.ActionGroup('MenuActions')
 		self.actiongroup.add_actions([
-			('organiser', set_from_file('../../../../../resources/icon.png'), 'Show _Organiser...', None, None, self.hello),
+			('organiser', gtk.STOCK_ABOUT, 'Show _Organiser...', None, None, self.hello),
 			('quickshot', gtk.STOCK_ABOUT, 'Take _Quickshot', None, None, self.hello),
 			('screenshot', gtk.STOCK_ABOUT, 'Take _Screenshot', None, None, self.hello),
 			('screencast', gtk.STOCK_HELP, '_Capture Screencast', None, None, self.hello),
 			('extensions', gtk.STOCK_PREFERENCES, '_Extension Manager...', None, None, self.hello),
+			('preferences', gtk.STOCK_PREFERENCES, '_Preferences...', None, None, self.hello),
 			('about', gtk.STOCK_ABOUT, '_About...', None, None, self.hello),
 			('quit', gtk.STOCK_QUIT, '_Quit', None, None, self.hello),
 		])
 		uimanager.insert_action_group(self.actiongroup, 0)
 		accelgroup = uimanager.get_accel_group()
-		uimanager.add_ui_from_file('statusiconmenu.xml')
+		uimanager.add_ui_from_string('''
+		<ui>
+			<popup name="StatusIconMenu">
+				<menuitem action="organiser" />
+				
+				<separator name="sep1" />
+				
+				<menuitem action="quickshot" />
+				<menuitem action="screenshot" />
+				<menuitem action="screencast" />
+				
+				<separator name="sep2" />
+				
+				<menuitem action="extensions" />
+				<menuitem action="about" />
+				<menuitem action="quit" />
+			</popup>
+		</ui>
+		''')
 		menu = uimanager.get_widget('ui/StatusIconMenu')
 		#client = gconf.client_get_default()
 		#client.add_dir('/apps/snappy/keybindings', gconf.CLIENT_PRELOAD_NONE)
