@@ -67,4 +67,6 @@ class Screenshot:
 		
 #screenshot = Screenshot()
 #screenshot.grab_window()
+for window in gtk.gdk.window_get_toplevels():
+	print window
 

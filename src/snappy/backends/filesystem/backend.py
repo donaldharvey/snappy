@@ -109,4 +109,29 @@ class Filesystem(Backend):
 		print dbpath
 		print self._sqliteCreateDB(dbpath, models.Model)
 		self.dbobject = self.dbObject(models.Model)
+		self.dbobject.set('category', {
+			'name': 'Snappy organiser',
+			'parent': 0,
+			'icon': 'default:default.png'
+		})
+		self.dbobject.set('category', {
+			'name': 'Windows',
+			'parent': 5,
+			'icon': 'default:default.png'
+		})
+		self.dbobject.set('category', {
+			'name': 'Mac OS X',
+			'parent': 5,
+			'icon': 'default:default.png'
+		})
+		self.dbobject.set('category', {
+			'name': 'Ubuntu',
+			'parent': 5,
+			'icon': 'default:default.png'
+		})
+		self.dbobject.set('category', {
+			'name': 'Dialogs',
+			'parent': 1,
+			'icon': 'default:default.png'
+		})
 fsbackend = Filesystem()
