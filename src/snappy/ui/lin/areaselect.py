@@ -37,7 +37,7 @@ class SelectArea(gtk.Window):
 	'''
 	The SelectArea window provides area selection to Snappy.
 	'''
-	def getselection(self, point):
+	def get_selection(self, point):
 		if not point:
 			return (self.rectselection.x, self.rect_selection.y, self.rect_selection.width, self.rect_selection.height)
 		elif point == 'x':

@@ -19,8 +19,9 @@ import os
 import pygtk
 pygtk.require('2.0')
 import gtk
+from tempfile import mkstemp
 from datetime import datetime, date, time
-class Screenshot:
+class ScreenshotManager:
 	'''
 	This class contains mainly backend code to capture screenshots.
 	Its most important function is grab_area().
@@ -40,6 +41,11 @@ class Screenshot:
 		current_window = current_window.get_toplevel()
 		return current_window
 
+	def _save_pixbuf_to_tempfile(self, pb):
+		filename = mkstemp('.png')
+		pb.save(filename, 'png')
+		return filename
+
 	def grab_area(self, x, y, width, height):
 		#TODO: REWRITE API CODE!
 		#api.image.filename = "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
@@ -51,10 +57,8 @@ class Screenshot:
 		sz = w.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
 		pb = pb.get_from_drawable(w,w.get_colormap(), x, y, 0, 0, width, height)
-		#pb.save(api.image.path, 'png')
-		#api.isvideo = False
-		#print "Screenshot saved to " + api.image.path + "."
-		return True
+		filename = self._save_pixbuf_to_tempfile(pb)
+		return filename
 
 	def grab_window(self):
 		window = self._get_active_window()
@@ -63,7 +67,8 @@ class Screenshot:
 		width, height = window.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
 		pb = pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, width, height)
-		pb.save('/home2/donald/.snappy/%s.png' % title, 'png')
+		filename = self._save_pixbuf_to_tempfile(pb)
+		return filename
 
-#screenshot = Screenshot()
+screenshotmanager = ScreenshotManager()
 #screenshot.grab_window()
