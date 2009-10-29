@@ -12,6 +12,9 @@ class ConfigManager:
 		from snappy.backend.urlproviders.trim import UrlProvider
 		self.urlprovider = UrlProvider()
 		self.settings = ConfigDict()
-		
-	def store_password(self, key, password):
+
+	def set_password(self, key, password):
 		self.settings[key] = password
+
+	def get_password(self, key):
+		return self.settings[key]
