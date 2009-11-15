@@ -50,14 +50,14 @@ class FileConfigManager(ConfigManager):
 
 	def set_password(self, key, password):
 		cryptkey = sha1(key).hexdigest()
-		bf = Blowfish.new(cryptkey, AES.MODE_ECB)
+		bf = Blowfish.new(cryptkey, Blowfish.MODE_ECB)
 		encrypted_pass = bf.encrypt(self._pad_pass(password))
 		del password
 		self.settings[cryptkey] = encrypted_pass
 
 	def get_password(self, key):
 		cryptkey = sha1(key).hexdigest()
-		bf = Blowfish.new(cryptkey, AES.MODE_ECB)
+		bf = Blowfish.new(cryptkey, Blowfish.MODE_ECB)
 		encrypted_pass = self.settings[cryptkey]
 		decrypted_pass = self._depad_pass(bf.decrypt(encrypted_pass))
 		return decrypted_pass

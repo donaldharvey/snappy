@@ -4,6 +4,8 @@ import gtk
 import pynotify
 import time
 from snappy.ui.lin.dialogs.organiser import OrganiserDialog
+import actions
+
 class StatusIcon:
 	def popup(self, widget, button, time, data=None):
 		if button == 3:
@@ -11,18 +13,21 @@ class StatusIcon:
 				data.show_all()
 				data.popup(None, None, None, 3, time)
 		pass
-	
+
 	def destroy(widget, data=None):
 		gtk.main_quit()
 
 	def hello(self, widget, data=None):
 		print 'Hi, world'
-		
+
+	def quickshot(self, widget, data=None):
+		print actions.quickshot()
+
 	organiser = hello
 	def main(self):
 		# Keybinding code here.
 		gtk.main()
-		
+
 	def __init__(self):
 		gtk.threads_init()
 		self.statusicon = gtk.StatusIcon()
@@ -31,7 +36,7 @@ class StatusIcon:
 		self.actiongroup = gtk.ActionGroup('MenuActions')
 		self.actiongroup.add_actions([
 			('organiser', gtk.STOCK_ABOUT, 'Show _Organiser...', None, None, self.hello),
-			('quickshot', gtk.STOCK_ABOUT, 'Take _Quickshot', None, None, self.hello),
+			('quickshot', gtk.STOCK_ABOUT, 'Take _Quickshot', None, None, self.quickshot),
 			('screenshot', gtk.STOCK_ABOUT, 'Take _Screenshot', None, None, self.hello),
 			('screencast', gtk.STOCK_HELP, '_Capture Screencast', None, None, self.hello),
 			('extensions', gtk.STOCK_PREFERENCES, '_Extension Manager...', None, None, self.hello),
@@ -45,15 +50,15 @@ class StatusIcon:
 		<ui>
 			<popup name="StatusIconMenu">
 				<menuitem action="organiser" />
-				
+
 				<separator name="sep1" />
-				
+
 				<menuitem action="quickshot" />
 				<menuitem action="screenshot" />
 				<menuitem action="screencast" />
-				
+
 				<separator name="sep2" />
-				
+
 				<menuitem action="extensions" />
 				<menuitem action="about" />
 				<menuitem action="quit" />
@@ -64,13 +69,13 @@ class StatusIcon:
 		#client = gconf.client_get_default()
 		#client.add_dir('/apps/snappy/keybindings', gconf.CLIENT_PRELOAD_NONE)
 		#client.set_string('/apps/snappy/keybindings/screengrab-area', '<Shift>Print')
-		
-		
+
+
 		## Now we connect these to their handlers.
-		
+
 		#menu.set_title('Popup example')
 		self.statusicon.connect("popup_menu", self.popup, menu)
-		
+
 		#self.statusicon.set_events(gtk.gdk.BUTTON_PRESS_MASK)
 		#self.statusicon.connect("button_press_event", self.keypress)
 

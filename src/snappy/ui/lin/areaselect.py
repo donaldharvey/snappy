@@ -27,7 +27,8 @@ pygtk.require('2.0')
 import gtk
 from gtk import gdk
 import cairo
-from datetime import datetime
+import math
+from screenshot import ScreenshotManager
 
 if gtk.pygtk_version < (2,10,0):
 	print "PyGtk 2.10.0 or later required"
@@ -37,9 +38,9 @@ class SelectArea(gtk.Window):
 	'''
 	The SelectArea window provides area selection to Snappy.
 	'''
-	def get_selection(self, point):
+	def get_selection(self, point=False):
 		if not point:
-			return (self.rectselection.x, self.rect_selection.y, self.rect_selection.width, self.rect_selection.height)
+			return (self.rect_selection.x, self.rect_selection.y, self.rect_selection.width, self.rect_selection.height)
 		elif point == 'x':
 			return self.rect_selection.x
 		elif point == 'y':
@@ -52,7 +53,7 @@ class SelectArea(gtk.Window):
 	def keypress(self, widget, event):
 		if event.keyval == 65307:
 			# escape key pressed. Destroy the window
-			self.window.destroy()
+			self.destroy_win()
 			gtk.main_quit()
 			self.escaped == True
 
@@ -81,7 +82,7 @@ class SelectArea(gtk.Window):
 		height = int(height)
 		(winwidth, winheight) = widget.get_size()
 		self.rect_selection = gtk.gdk.Rectangle(x, y, width, height)
-		self.window.queue_draw()
+		self.queue_draw()
 
 	def released(self, widget, event):
 		self.mouseuplocation = (event.x_root, event.y_root)
@@ -105,8 +106,15 @@ class SelectArea(gtk.Window):
 		height = int(height)
 		(winwidth, winheight) = widget.get_size()
 		self.rect_selection = gtk.gdk.Rectangle(x, y, width, height)
-		self.window.queue_draw()
-		self.window.destroy()
+		self._is_finished = True
+		self.queue_draw()
+		#self.hide_all()
+		#self.destroy_win()
+		#gtk.main_quit()
+		self.filename = ScreenshotManager().grab_area(*self.get_selection())
+		print self.filename
+		self.hide_all()
+		self.destroy_win()
 		gtk.main_quit()
 
 
@@ -125,31 +133,31 @@ class SelectArea(gtk.Window):
 		cr.set_operator(cairo.OPERATOR_SOURCE)
 		cr.paint()
 
+		if not self._is_finished:
+			# Draw the overlay at 75% opacity
+			cr.set_source_rgba(0, 0, 0, 0.75)
+			cr.rectangle(0, 0, float(width), float(height))
+			#cr.mask(pat)
+			cr.fill()
+			cr.stroke()
 
-		# Draw the overlay at 75% opacity
-		cr.set_source_rgba(0, 0, 0, 0.75)
-		cr.rectangle(0, 0, float(width), float(height))
-		#cr.mask(pat)
+			# Draw the selection box
+			cr.set_source_rgba(1, 1, 1, 0)
+			cr.set_line_width(2)
+			cr.rectangle(float(self.rect_selection.x), float(self.rect_selection.y), float(self.rect_selection.width), float(self.rect_selection.height))
+
 		cr.fill()
-		cr.stroke()
+		if not self._is_finished:
+			cr.set_source_rgba(1, 0.9, 0, 1)
+			cr.set_line_width(2)
+			cr.move_to(float(self.rect_selection.x - 1), float(self.rect_selection.y - 1))
+			cr.line_to(float(self.rect_selection.x + self.rect_selection.width + 1), float(self.rect_selection.y - 1))
+			cr.line_to(float(self.rect_selection.x + self.rect_selection.width + 1), float(self.rect_selection.y + self.rect_selection.height + 1))
+			cr.line_to(float(self.rect_selection.x - 1), float(self.rect_selection.y + self.rect_selection.height + 1))
+			cr.close_path()
+			cr.stroke()
 
-		# Draw the selection box
-		cr.set_source_rgba(1, 1, 1, 0)
-		cr.set_line_width(2)
-		cr.rectangle(float(self.rect_selection.x), float(self.rect_selection.y), float(self.rect_selection.width), float(self.rect_selection.height))
-
-		cr.fill()
-		dashes = [ 1.0, 2.0 ]
-		cr.set_source_rgba(1, 0.9, 0, 1)
-		cr.set_line_width(2)
-		cr.move_to(float(self.rect_selection.x - 1), float(self.rect_selection.y - 1))
-		cr.line_to(float(self.rect_selection.x + self.rect_selection.width + 1), float(self.rect_selection.y - 1))
-		cr.line_to(float(self.rect_selection.x + self.rect_selection.width + 1), float(self.rect_selection.y + self.rect_selection.height + 1))
-		cr.line_to(float(self.rect_selection.x - 1), float(self.rect_selection.y + self.rect_selection.height + 1))
-		cr.close_path()
-		cr.stroke()
-
-		if self.rect_selection.width > 0 and self.rect_selection.height > 0:
+		if self.rect_selection.width > 0 and self.rect_selection.height > 0 and not self._is_finished:
 			pg = pangocairo.CairoContext(cr)
 			pgl = pg.create_layout()
 			(pglw, pglh) = pgl.get_pixel_size()
@@ -157,21 +165,14 @@ class SelectArea(gtk.Window):
 			pgfont.set_family("MgOpen Moderna")
 			pgl.set_text(str(self.rect_selection.width) + 'px x ' + str(self.rect_selection.height) + 'px')
 			pgl.set_font_description(pgfont)
-			print 'Width, height = ' + str(pglw + self.rect_selection.width) + ', ' + str(pglh + self.rect_selection.height)
-			if self.rect_selection.width + pglw > width:
-				print 'Greater than self.window width'
-				pglx = float(width - pglw)
-				print pglx
-			else:
-				pglx = float(self.rect_selection.x)
-			if self.rect_selection.height + pglh > height:
-				print 'Greater than self.window height'
-				pgly = float(height - pglh)
-			else:
-				pgly = float(self.rect_selection.y)
+			#print 'Pango layout width, height: ' + str(pglw + self.rect_selection.width) + ', ' + str(pglh + self.rect_selection.height)
+			pglx = float(self.rect_selection.x - pglw)
+			pgly = float(self.rect_selection.height + self.rect_selection.y)
+			#print width, height
 			cr.move_to(pglx, pgly)
 			pg.show_layout(pgl)
 
+		# setup mask
 		pm = gtk.gdk.Pixmap(None, width, height, 1)
 		pmcr = pm.cairo_create()
 		pmcr.rectangle(0, 0, float(width), float(height))
@@ -182,7 +183,7 @@ class SelectArea(gtk.Window):
 
 		return False
 
-	def destroy(self, widget, data=None):
+	def destroy_win(self, widget=None, data=None):
 		gtk.main_quit()
 		return 'failed!'
 
@@ -197,7 +198,7 @@ class SelectArea(gtk.Window):
 			print 'Your screen supports alpha channels!'
 			self.supports_alpha = True
 
-		widget.set_colormap(colormap)
+		self.set_colormap(colormap)
 
 		return True
 
@@ -206,8 +207,9 @@ class SelectArea(gtk.Window):
 		widget.window.set_cursor(cursor)
 
 	def __init__(self):
-		escaped = False
-		rect_selection = gtk.gdk.Rectangle(0, 0, 0, 0)
+		self.escaped = False
+		self.rect_selection = gtk.gdk.Rectangle(0, 0, 0, 0)
+		self._is_finished = False
 		gtk.Window.__init__(self)
 		self.set_property("skip-taskbar-hint", True)
 
@@ -226,7 +228,7 @@ class SelectArea(gtk.Window):
 		self.screen_changed()
 		self.connect('button-press-event', self.clicked)
 		self.connect('button-release-event', self.released)
-		self.connect_object('button-release-event', self.destroy, self.window)
+		#self.connect_object('button-release-event', self.destroy_win, self)
 		self.connect('motion-notify-event', self.mousemove)
 		self.connect('realize', self.realize)
 		self.connect('key_release_event', self.keypress)

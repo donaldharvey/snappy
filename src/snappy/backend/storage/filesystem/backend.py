@@ -1,4 +1,4 @@
-from snappy.backends.backend import Backend
+from snappy.backend.storage.backend import Backend
 import os
 import sys
 import unittest

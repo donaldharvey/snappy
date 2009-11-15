@@ -7,14 +7,15 @@ class FtpStorage:
 		self.configmanager = configmanager
 		self.server = configmanager.settings['ftpstorage.server']
 		self.directory = configmanager.settings['ftpstorage.directory']
-		self.httplocation = configmanager.get_password('ftpstorage.httplocation')
+		self.httplocation = configmanager.settings['ftpstorage.httplocation']
 
 	def store(self, filepath):
-		username = configmanager.settings['ftpstorage.username']
-		password = configmanager.get_password('ftpstorage.password')
+		username = self.configmanager.settings['ftpstorage.username']
+		password = self.configmanager.get_password('ftpstorage.password')
 		ftp = FTP(self.server, username, password)
 		del password
 		filename = strftime('%d-%b-%Y_%H-%M-%S.' + filepath.split('.')[-1])
+		ftp.cwd(self.directory)
 		f = open(filepath)
 		ftp.storbinary('STOR %s' % filename, f)
 		f.close()

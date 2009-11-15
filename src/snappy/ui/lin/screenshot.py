@@ -21,11 +21,13 @@ pygtk.require('2.0')
 import gtk
 from tempfile import mkstemp
 from datetime import datetime, date, time
+from snappy.utils import Singleton
 class ScreenshotManager:
 	'''
 	This class contains mainly backend code to capture screenshots.
 	Its most important function is grab_area().
 	'''
+	__metaclass__ = Singleton
 	def _get_window_title(self, window):
 		'''Get a gdk.Window's title'''
 		name = window.property_get('_NET_WM_NAME') #test this
@@ -42,7 +44,7 @@ class ScreenshotManager:
 		return current_window
 
 	def _save_pixbuf_to_tempfile(self, pb):
-		filename = mkstemp('.png')
+		filename = mkstemp('.png')[1]
 		pb.save(filename, 'png')
 		return filename
 
@@ -69,6 +71,8 @@ class ScreenshotManager:
 		pb = pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, width, height)
 		filename = self._save_pixbuf_to_tempfile(pb)
 		return filename
+
+
 
 screenshotmanager = ScreenshotManager()
 #screenshot.grab_window()
