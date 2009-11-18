@@ -1,4 +1,5 @@
 from UserDict import DictMixin
+from snappy.utils import Singleton
 class ConfigDict(DictMixin, object):
 	def __init__(self):
 		super(ConfigDict, self).__init__()
@@ -9,6 +10,7 @@ class ConfigDict(DictMixin, object):
 		self.dict.__setitem__(key, value)
 
 class ConfigManager(object):
+	__metaclass__ = Singleton
 	def __init__(self):
 		super(ConfigManager, self).__init__()
 		from snappy.backend.urlproviders.trim import UrlProvider

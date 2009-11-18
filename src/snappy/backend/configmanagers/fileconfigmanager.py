@@ -78,6 +78,13 @@ class FileConfigDict(ConfigDict):
 			section, option = key.split('.', 1)
 		except ValueError:
 			section, option = 'misc', key
+		if option == '*':
+			opts_dict = {}
+			opt_names = self.parser.options(section)
+			for opt_name in opt_names:
+				opts_dict[opt_name] = self.parser.get(section, opt_name)
+			return opts_dict
+		
 		return self.parser.get(section, option)
 
 	def __setitem__(self, key, value):
