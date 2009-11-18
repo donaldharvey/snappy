@@ -34,3 +34,9 @@ def quickshot():
 	clipboard = gtk.clipboard_get('CLIPBOARD')
 	clipboard.set_text(shorturl)
 	return shorturl
+
+def screencast():
+	pass
+
+def screenshot():
+	pass

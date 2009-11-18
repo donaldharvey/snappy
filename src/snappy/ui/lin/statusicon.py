@@ -4,6 +4,8 @@ import gtk
 import pynotify
 import time
 from snappy.ui.lin.dialogs.organiser import OrganiserDialog
+from snappy.ui.lin.keybindings import KeyBindingManager
+from snappy.backend.configmanagers import get_conf_manager
 import actions
 
 class StatusIcon:
@@ -26,6 +28,12 @@ class StatusIcon:
 	organiser = hello
 	def main(self):
 		# Keybinding code here.
+		mgr = get_conf_manager()
+		bindings = mgr.settings['keyboard_shortcuts.*']
+		for action_name, binding in bindings.iteritems():
+			action = getattr(actions, action_name)
+			KeyBindingManager().add_binding_from_string(binding, action)
+		KeyBindingManager().start()
 		gtk.main()
 
 	def __init__(self):
