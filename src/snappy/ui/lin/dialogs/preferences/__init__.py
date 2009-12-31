@@ -9,6 +9,7 @@ class Preferences(object):
 		self.window = self._build_dialog()
 		self.notebook = self.window.get_child().get_children()[0]
 		self.add_settings_area('main_area.glade')
+		self.add_settings_area('sharing.glade')
 		self.window.show_all()
 
 	def _build_dialog(self):
@@ -24,11 +25,11 @@ class Preferences(object):
 		gtk.main()
 
 	def add_settings_area(self, location):
-		os.path.join(os.path.dirname(__file__), location)
+		path = os.path.join(os.path.dirname(__file__), location)
 		builder = gtk.Builder()
-		builder.add_from_file(location)
+		builder.add_from_file(path)
 		area_name = location.split('.')[-2]
-		area_module = __import__(area_name)
+		area_module = getattr(__import__('snappy.ui.lin.dialogs.preferences', fromlist=[area_name]), area_name)
 		area = builder.get_object(area_name)
 		container = gtk.HBox()
 		container.set_border_width(10)
@@ -36,7 +37,7 @@ class Preferences(object):
 		label = builder.get_object(area_name + '_label')
 		builder.connect_signals(area_module.callbacks)
 		container._builder = builder
-		
+
 		def get_widget_by_name(name):
 			def iterate_children(widget, name):
 				if widget.get_name() == name:

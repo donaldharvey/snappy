@@ -1,7 +1,6 @@
 import gtk
 from snappy.backend.configmanagers import get_conf_manager
 conf_manager = get_conf_manager()
-oldtext = ''
 def startup(widget):
 	print widget.get_widget_by_name('quickshot')
 	for name, binding in conf_manager.settings['keyboard_shortcuts.*'].iteritems():
@@ -40,7 +39,7 @@ modifiers_mask = 0
 for modifier in (gtk.gdk.CONTROL_MASK, gtk.gdk.SHIFT_MASK, gtk.gdk.MOD1_MASK,
 	gtk.gdk.SUPER_MASK, gtk.gdk.HYPER_MASK):
 	modifiers_mask |= modifier
-	
+
 def kbd_entry_keypress(widget, event, data=None):
 	# capture keypresses here
 	k = gtk.gdk.keyval_name(event.keyval)

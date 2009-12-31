@@ -6,6 +6,7 @@ except ImportError:
 	import simplejson as json
 
 class TrimUrlProvider(UrlProvider):
+	nice_name = 'Tr.im'
 	api_url = 'http://api.tr.im/api/trim_url.json'
 	def shorten(self, url):
 		clean_url = quote(url)

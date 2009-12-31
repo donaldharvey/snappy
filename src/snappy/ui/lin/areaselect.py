@@ -53,9 +53,10 @@ class SelectArea(gtk.Window):
 	def keypress(self, widget, event):
 		if event.keyval == 65307:
 			# escape key pressed. Destroy the window
+			self.cancelled = True
+			self.hide_all()
 			self.destroy_win()
 			gtk.main_quit()
-			self.escaped == True
 
 	def clicked(self, widget, event):
 		self.mousedownlocation = (event.x_root, event.y_root)
@@ -147,7 +148,7 @@ class SelectArea(gtk.Window):
 			cr.rectangle(float(self.rect_selection.x), float(self.rect_selection.y), float(self.rect_selection.width), float(self.rect_selection.height))
 
 		cr.fill()
-		if not self._is_finished:
+		if not self._is_finished and (self.rect_selection.x > 0 or self.rect_selection.y > 0):
 			cr.set_source_rgba(1, 0.9, 0, 1)
 			cr.set_line_width(2)
 			cr.move_to(float(self.rect_selection.x - 1), float(self.rect_selection.y - 1))
@@ -185,7 +186,6 @@ class SelectArea(gtk.Window):
 
 	def destroy_win(self, widget=None, data=None):
 		gtk.main_quit()
-		return 'failed!'
 
 	def screen_changed(self, widget=None, old_screen=None):
 		screen = self.get_screen()
@@ -207,7 +207,7 @@ class SelectArea(gtk.Window):
 		widget.window.set_cursor(cursor)
 
 	def __init__(self):
-		self.escaped = False
+		self.cancelled = False
 		self.rect_selection = gtk.gdk.Rectangle(0, 0, 0, 0)
 		self._is_finished = False
 		gtk.Window.__init__(self)
@@ -237,7 +237,7 @@ class SelectArea(gtk.Window):
 
 	def main(self):
 		gtk.main()
-		return True
+
 if __name__ == '__main__':
 	screenshot = SelectArea()
 	screenshot.main()

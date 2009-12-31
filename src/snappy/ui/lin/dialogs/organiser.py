@@ -2,7 +2,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 from snappy.backend.storage.filesystem.backend import fsbackend
-from snappy.ui.lin.widgets.captures import CapturesWindow
+from snappy.ui.lin.widgets.captures import CapturesArea
 class OrganiserDialog():
 	def _iterate_categories(self):
 		# Get data from DB.
@@ -124,8 +124,8 @@ class OrganiserDialog():
 		categories_view = self._create_categories_treeview()
 		hpane.add1(categories_view)
 
-		captures = CapturesWindow()
-		hpane.add2(captures.get_win())
+		captures = CapturesArea()
+		hpane.add2(captures)
 		self.window.connect('configure_event', captures._configure_event)
 		vbox.pack_start(hpane)
 

@@ -10,8 +10,9 @@ def quickshot():
 	selectarea = SelectArea()
 	selectarea.main()
 	# Save to a temp file.
+	if selectarea.cancelled:
+		return None
 	filename = selectarea.filename
-
 	from snappy.backend.configmanagers import get_conf_manager
 	configmanager = get_conf_manager()
 	# Get the FTP storage backend for now.
@@ -33,6 +34,7 @@ def quickshot():
 	# Finally, add it to the clipboard.
 	clipboard = gtk.clipboard_get('CLIPBOARD')
 	clipboard.set_text(shorturl)
+
 	return shorturl
 
 def screencast():
