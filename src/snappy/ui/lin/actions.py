@@ -14,18 +14,15 @@ def quickshot():
 		return None
 	filename = selectarea.filename
 	from snappy.backend.configmanagers import get_conf_manager
+	from snappy.backend.httpstorage import get_sharing_service_from_conf
+	from snappy.backend.urlproviders import get_url_shortener_from_conf
 	configmanager = get_conf_manager()
-	# Get the FTP storage backend for now.
-	# Later, get an appropriate HttpStorage provider from the conf manager.
-	from snappy.backend.httpstorage.ftpstorage import FtpStorage as HttpStorage
-	httpstorage = HttpStorage(configmanager)
 
-	# TODO: Get a UrlProvider from the ConfigManager.
-	from snappy.backend.urlproviders.trim import TrimUrlProvider as UrlProvider
-	urlprovider = UrlProvider()
+	sharingservice = get_sharing_service_from_conf(configmanager)
+	urlprovider = get_url_shortener_from_conf(configmanager)
 
 	# Store the file online
-	url = httpstorage.store(filename)
+	url = sharingservice.store(filename)
 	print 'Saved to', url
 
 	# Get the short url

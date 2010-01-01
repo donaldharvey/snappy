@@ -212,6 +212,7 @@ class SelectArea(gtk.Window):
 		self._is_finished = False
 		gtk.Window.__init__(self)
 		self.set_property("skip-taskbar-hint", True)
+		self.set_keep_above(True)
 
 		self.connect('delete-event', gtk.main_quit)
 

@@ -2,7 +2,9 @@ from ftplib import FTP
 from os.path import basename
 from urllib import basejoin
 from time import strftime
-class FtpStorage:
+from snappy.backend.httpstorage import WebStorage
+class FtpStorage(WebStorage):
+	nice_name = 'FTP/SFTP-based Storage'
 	def __init__(self, configmanager):
 		self.configmanager = configmanager
 		self.server = configmanager.settings['ftpstorage.server']

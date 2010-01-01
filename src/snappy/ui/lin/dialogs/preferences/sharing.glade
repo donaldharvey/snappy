@@ -7,6 +7,8 @@
     <property name="label" translatable="yes">Sharing</property>
   </object>
   <object class="GtkScrolledWindow" id="sharing">
+    <property name="width_request">400</property>
+    <property name="height_request">220</property>
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="hscrollbar_policy">automatic</property>
@@ -20,6 +22,7 @@
           <object class="GtkFrame" id="frame1">
             <property name="visible">True</property>
             <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
             <child>
               <object class="GtkAlignment" id="http_sharing_alignment">
                 <property name="visible">True</property>
@@ -91,6 +94,7 @@
           <object class="GtkFrame" id="sharing_url_settings">
             <property name="visible">True</property>
             <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
             <child>
               <object class="GtkAlignment" id="alignment1">
                 <property name="visible">True</property>

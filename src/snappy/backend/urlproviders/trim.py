@@ -1,4 +1,4 @@
-from urlprovider import UrlProvider
+from snappy.backend.urlproviders import UrlProvider
 from urllib import urlopen, quote
 try:
 	import json

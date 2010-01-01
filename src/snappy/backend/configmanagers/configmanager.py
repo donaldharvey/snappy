@@ -13,8 +13,6 @@ class ConfigManager(object):
 	__metaclass__ = Singleton
 	def __init__(self):
 		super(ConfigManager, self).__init__()
-		from snappy.backend.urlproviders.trim import UrlProvider
-		self.urlprovider = UrlProvider()
 		self.settings = ConfigDict()
 
 	def set_password(self, key, password):
