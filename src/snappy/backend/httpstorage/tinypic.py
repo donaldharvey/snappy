@@ -7,6 +7,10 @@ from BeautifulSoup import BeautifulSoup
 class TinyPicStorage(WebStorage):
 	"""Uses TinyPic to store files online."""
 	nice_name = 'TinyPic online storage'
+	defaults = {
+		'tinypic.username': '',
+		'tinypic.password': '',
+	}
 	def __init__(self, configmanager):
 		self.configmanager = configmanager
 

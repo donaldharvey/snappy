@@ -4,7 +4,7 @@ class WebStorage(object):
 	An interface for defining web storage services for use with snappy.
 	"""
 	def __init__(self, configmanager):
-		pass
+		configmanager.settings.defaults.update(self.defaults)
 
 	def store(self, filepath):
 		"""Stores the capture, and returns its URL or location."""

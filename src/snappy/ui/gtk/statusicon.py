@@ -5,10 +5,10 @@ import pynotify
 import time
 import os
 import gst
-from snappy.ui.lin.dialogs.organiser import OrganiserDialog
-from snappy.ui.lin.keybindings import KeyBindingManager
+from snappy.ui.gtk.dialogs.organiser import OrganiserDialog
+from snappy.ui.gtk.keybindings import KeyBindingManager
 from snappy.backend.configmanagers import get_conf_manager
-from snappy.ui.lin.dialogs.preferences import Preferences
+from snappy.ui.gtk.dialogs.preferences import Preferences
 import actions
 
 class StatusIcon:
@@ -38,6 +38,8 @@ class StatusIcon:
 		if result is not None:
 			# Play an alert sound.
 			self.player.set_state(gst.STATE_PLAYING)
+		notification = pynotify.Notification('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result)
+		notification.show()
 
 	def preferences(self, widget, data=None):
 		Preferences().main()

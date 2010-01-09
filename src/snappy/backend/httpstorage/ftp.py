@@ -5,11 +5,20 @@ from time import strftime
 from snappy.backend.httpstorage import WebStorage
 class FtpStorage(WebStorage):
 	nice_name = 'FTP/SFTP-based Storage'
+	defaults = {
+		'ftp.server': None,
+		'ftp.username': None,
+		'ftp.password': None,
+		'ftp.directory': None,
+		'ftp.httplocation': None,
+		'ftp.use_sftp': True
+	}
 	def __init__(self, configmanager):
 		self.configmanager = configmanager
 		self.server = configmanager.settings['ftpstorage.server']
 		self.directory = configmanager.settings['ftpstorage.directory']
 		self.httplocation = configmanager.settings['ftpstorage.httplocation']
+		super(FtpStorage, self).__init__()
 
 	def store(self, filepath):
 		username = self.configmanager.settings['ftpstorage.username']

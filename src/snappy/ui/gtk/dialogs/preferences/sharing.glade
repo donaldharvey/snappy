@@ -49,6 +49,7 @@
                         <child>
                           <object class="GtkComboBox" id="http_sharing_service">
                             <property name="visible">True</property>
+                            <signal name="changed" handler="change_sharing_combo"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -63,11 +64,12 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button1">
+                      <object class="GtkButton" id="open_sharing_window_button">
                         <property name="label" translatable="yes">Configure Web Sharing Service</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="clicked" handler="open_sharing_window"/>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -121,6 +123,7 @@
                         <child>
                           <object class="GtkComboBox" id="url_shortener_service">
                             <property name="visible">True</property>
+                            <signal name="changed" handler="change_sharing_combo"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -142,6 +145,7 @@
                         <property name="receives_default">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="shortener_settings_change"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -167,6 +171,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">&#x25CF;</property>
+                            <signal name="changed" handler="shortener_settings_change"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -199,6 +204,7 @@
                             <property name="can_focus">True</property>
                             <property name="visibility">False</property>
                             <property name="invisible_char">&#x25CF;</property>
+                            <signal name="changed" handler="shortener_settings_change"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>

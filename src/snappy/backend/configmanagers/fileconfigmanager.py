@@ -1,5 +1,5 @@
 from configmanager import ConfigManager, ConfigDict
-from ConfigParser import ConfigParser, NoSectionError
+from ConfigParser import SafeConfigParser, NoSectionError
 import sys
 import os
 from Crypto.Cipher import Blowfish #for password storage
@@ -59,7 +59,10 @@ class FileConfigManager(ConfigManager):
 		cryptkey = sha1(key).hexdigest()
 		bf = Blowfish.new(cryptkey, Blowfish.MODE_ECB)
 		encrypted_pass = self.settings[cryptkey]
-		decrypted_pass = self._depad_pass(bf.decrypt(encrypted_pass))
+		try:
+			decrypted_pass = self._depad_pass(bf.decrypt(encrypted_pass))
+		except TypeError:
+			decrypted_pass = ''
 		return decrypted_pass
 
 class FileConfigDict(ConfigDict):
@@ -68,10 +71,11 @@ class FileConfigDict(ConfigDict):
 		self.filename = os.path.join(app_data_dir(), 'settings.cfg')
 		if not os.path.exists(self.filename):
 			open(self.filename, 'w').close()
-		self.parser = ConfigParser()
+		self.parser = SafeConfigParser()
 		f = open(self.filename, 'r+')
 		self.parser.readfp(f)
 		f.close()
+		self.defaults = {}
 
 	def __getitem__(self, key):
 		try:
@@ -80,12 +84,21 @@ class FileConfigDict(ConfigDict):
 			section, option = 'misc', key
 		if option == '*':
 			opts_dict = {}
-			opt_names = self.parser.options(section)
-			for opt_name in opt_names:
-				opts_dict[opt_name] = self.parser.get(section, opt_name)
+			for key in self.defaults.keys():
+				if key.startswith(section):
+					opts_dict[key] = self.defaults[key]
+			try:
+				opt_names = self.parser.options(section)
+			except NoSectionError:
+				pass
+			else:
+				for opt_name in opt_names:
+					opts_dict[opt_name] = self.parser.get(section, opt_name)
 			return opts_dict
-		
-		return self.parser.get(section, option)
+		try:
+			return self.parser.get(section, option)
+		except Exception:
+			return self.defaults.get(key)
 
 	def __setitem__(self, key, value):
 		try:

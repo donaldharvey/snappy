@@ -2,7 +2,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 from snappy.backend.storage.filesystem.backend import fsbackend
-from snappy.ui.lin.widgets.captures import CapturesArea
+from snappy.ui.gtk.widgets.captures import CapturesArea
 class OrganiserDialog():
 	def _iterate_categories(self):
 		# Get data from DB.
