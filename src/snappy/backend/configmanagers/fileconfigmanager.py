@@ -82,11 +82,12 @@ class FileConfigDict(ConfigDict):
 			section, option = key.split('.', 1)
 		except ValueError:
 			section, option = 'misc', key
+
 		if option == '*':
 			opts_dict = {}
 			for key in self.defaults.keys():
 				if key.startswith(section):
-					opts_dict[key] = self.defaults[key]
+					opts_dict[key.split('.', 1)[1]] = self.defaults[key]
 			try:
 				opt_names = self.parser.options(section)
 			except NoSectionError:

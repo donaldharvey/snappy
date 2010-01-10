@@ -34,6 +34,9 @@ class StatusIcon:
 		print 'Hi, world'
 
 	def quickshot(self, widget, data=None):
+		if data == 'from_menu':
+			# Gives enough time for the menu to fade out before grabbing screenshot
+			time.sleep(0.5)
 		result = actions.quickshot()
 		if result is not None:
 			# Play an alert sound.
@@ -52,6 +55,7 @@ class StatusIcon:
 
 
 	def __init__(self):
+		pynotify.init('Snappy Screen Capture')
 		mgr = get_conf_manager()
 		bindings = mgr.settings['keyboard_shortcuts.*']
 		for action_name, binding in bindings.iteritems():
@@ -74,7 +78,7 @@ class StatusIcon:
 			('preferences', gtk.STOCK_PREFERENCES, '_Preferences...', None, None, self.preferences),
 			('about', gtk.STOCK_ABOUT, '_About...', None, None, self.hello),
 			('quit', gtk.STOCK_QUIT, '_Quit', None, None, self.hello),
-		])
+		], 'from_menu')
 		uimanager.insert_action_group(self.actiongroup, 0)
 		accelgroup = uimanager.get_accel_group()
 		uimanager.add_ui_from_string('''

@@ -48,6 +48,12 @@ class ScreenshotManager:
 		pb.save(filename, 'png')
 		return filename
 
+	def grab_fullscreen(self):
+		height = gtk.gdk.screen_height()
+		width = gtk.gdk.screen_width()
+		print width, height
+		return self.grab_area(0, 0, width, height)
+
 	def grab_area(self, x, y, width, height):
 		#TODO: REWRITE API CODE!
 		#api.image.filename = "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
@@ -59,8 +65,7 @@ class ScreenshotManager:
 		sz = w.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
 		pb = pb.get_from_drawable(w,w.get_colormap(), x, y, 0, 0, width, height)
-		filename = self._save_pixbuf_to_tempfile(pb)
-		return filename
+		return pb
 
 	def grab_window(self):
 		window = self._get_active_window()
@@ -69,8 +74,7 @@ class ScreenshotManager:
 		width, height = window.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
 		pb = pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, width, height)
-		filename = self._save_pixbuf_to_tempfile(pb)
-		return filename
+		return pb
 
 
 
