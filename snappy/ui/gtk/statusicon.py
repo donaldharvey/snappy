@@ -72,7 +72,7 @@ class StatusIcon:
 			KeyBindingManager().add_binding_from_string(binding, action)
 
 		self.statusicon = gtk.StatusIcon()
-		icon_file = os.path.join(os.path.dirname(__file__), "../../../../resources/snappy24.png")
+		icon_file = os.path.join(os.path.dirname(__file__), "../../../resources/snappy24.png")
 		print icon_file
 		self.statusicon.set_from_file(icon_file)
 		#set_from_file(icon_file) #FIXME: change to /usr/share/icons when installed?
@@ -116,7 +116,7 @@ class StatusIcon:
 		self.statusicon.connect("activate", self.capture, False, 'area')
 
 		# Set up gstreamer player to play alerts.
-		audio_file = os.path.join(os.path.dirname(__file__), '../../../../resources/finished.ogg')
+		audio_file = os.path.join(os.path.dirname(__file__), '../../../resources/finished.ogg')
 		audio_file = os.path.abspath(audio_file)
 		self.player = gst.parse_launch('filesrc location=%s ! oggdemux ! vorbisdec ! audioconvert ! gconfaudiosink' % audio_file)
 		bus = self.player.get_bus()
