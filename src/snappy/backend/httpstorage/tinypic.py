@@ -30,8 +30,8 @@ class TinyPicStorage(WebStorage):
 					pass
 		data['file_type'] = 'image'
 		data['dimension'] = 1600
+		f = open(filepath)
 		try:
-			f = open(filepath)
 			value = f.read()
 			print type(value)
 

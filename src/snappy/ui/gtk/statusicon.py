@@ -27,17 +27,29 @@ class StatusIcon:
 				data.popup(None, None, None, 3, time)
 		pass
 
-	def destroy(widget, data=None):
+	def destroy(self, widget, data=None):
 		gtk.main_quit()
+
+	def about(self, widget, data=None):
+		# For now, data is hardcoded in; later get these from setup.py
+		self.aboutdialog = gtk.AboutDialog()
+		self.aboutdialog.set_name('Snappy')
+		self.aboutdialog.set_version('0.1 Beta')
+		self.aboutdialog.set_copyright(u'Copyright \u00A9 2009-2010 Donald Harvey')
+		self.aboutdialog.set_comments('A quick, customisable and easy-to-use screen capture app for Linux.')
+		response = self.aboutdialog.run()
+		self.aboutdialog.hide()
+		del self.aboutdialog
 
 	def hello(self, widget, data=None):
 		print 'Hi, world'
 
-	def quickshot(self, widget, data=None):
-		if data == 'from_menu':
-			# Gives enough time for the menu to fade out before grabbing screenshot
+	def capture(self, widget, from_menu=False, type='area'):
+		if from_menu:
+			# Gives enough time for the menu to fade out before grabbing screenshot.
 			time.sleep(0.5)
-		result = actions.quickshot()
+		capture_function = getattr(actions, 'capture_%s' % type)
+		result = capture_function()
 		if result is not None:
 			# Play an alert sound.
 			self.player.set_state(gst.STATE_PLAYING)
@@ -47,12 +59,9 @@ class StatusIcon:
 	def preferences(self, widget, data=None):
 		Preferences().main()
 
-	organiser = hello
 	def main(self):
-		# Keybinding code here.
 		KeyBindingManager().start()
 		gtk.main()
-
 
 	def __init__(self):
 		pynotify.init('Snappy Screen Capture')
@@ -70,31 +79,30 @@ class StatusIcon:
 		uimanager = gtk.UIManager()
 		self.actiongroup = gtk.ActionGroup('MenuActions')
 		self.actiongroup.add_actions([
-			('organiser', gtk.STOCK_ABOUT, 'Show _Organiser...', None, None, self.hello),
-			('quickshot', gtk.STOCK_ABOUT, 'Take _Quickshot', None, None, self.quickshot),
-			('screenshot', gtk.STOCK_ABOUT, 'Take _Screenshot', None, None, self.hello),
-			('screencast', gtk.STOCK_HELP, '_Capture Screencast', None, None, self.hello),
-			('extensions', gtk.STOCK_PREFERENCES, '_Extension Manager...', None, None, self.hello),
 			('preferences', gtk.STOCK_PREFERENCES, '_Preferences...', None, None, self.preferences),
-			('about', gtk.STOCK_ABOUT, '_About...', None, None, self.hello),
-			('quit', gtk.STOCK_QUIT, '_Quit', None, None, self.hello),
-		], 'from_menu')
+			('about', gtk.STOCK_ABOUT, '_About...', None, None, self.about),
+			('quit', gtk.STOCK_QUIT, '_Quit', None, None, self.destroy),
+		])
+		capture_actions = {
+			'area': gtk.Action('capture_area', 'Capture _Area', None, gtk.STOCK_ABOUT),
+			'window': gtk.Action('capture_window', 'Capture Active _Window', None, gtk.STOCK_ABOUT),
+			'screen': gtk.Action('capture_screen', 'Capture Full _Screen', None, gtk.STOCK_ABOUT),
+		}
+		for name, action in capture_actions.iteritems():
+			action.connect('activate', self.capture, True, name)
+			self.actiongroup.add_action(action)
+
 		uimanager.insert_action_group(self.actiongroup, 0)
 		accelgroup = uimanager.get_accel_group()
 		uimanager.add_ui_from_string('''
 		<ui>
 			<popup name="StatusIconMenu">
-				<menuitem action="organiser" />
-
-				<separator name="sep1" />
-
-				<menuitem action="quickshot" />
-				<menuitem action="screenshot" />
-				<menuitem action="screencast" />
+				<menuitem action="capture_area" />
+				<menuitem action="capture_window" />
+				<menuitem action="capture_screen" />
 
 				<separator name="sep2" />
 
-				<menuitem action="extensions" />
 				<menuitem action="preferences" />
 				<menuitem action="about" />
 				<menuitem action="quit" />
@@ -102,11 +110,10 @@ class StatusIcon:
 		</ui>
 		''')
 		menu = uimanager.get_widget('ui/StatusIconMenu')
-
 		## Now we connect these to their handlers.
 
 		self.statusicon.connect("popup_menu", self.popup, menu)
-		self.statusicon.connect("activate", self.quickshot)
+		self.statusicon.connect("activate", self.capture, False, 'area')
 
 		# Set up gstreamer player to play alerts.
 		audio_file = os.path.join(os.path.dirname(__file__), '../../../../resources/finished.ogg')
@@ -118,5 +125,6 @@ class StatusIcon:
 		self.statusicon.set_visible(True)
 
 if __name__ == '__main__':
+	gtk.gdk.threads_init()
 	statusicon = StatusIcon()
 	statusicon.main()

@@ -40,7 +40,7 @@ class MainAreaTab(PreferencesArea):
 			conf_manager.settings['keyboard_shortcuts.%s' % widget.get_name()] = widget.get_text()
 		widget.set_editable(True)
 
-	def kbd_entry_press(widget, event, data=None):
+	def kbd_entry_press(self, widget, event, data=None):
 		# capture keypresses here
 		k = gtk.gdk.keyval_name(event.keyval)
 		if k in self.modifier_keyvals:

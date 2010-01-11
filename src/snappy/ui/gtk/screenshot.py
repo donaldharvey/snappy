@@ -55,12 +55,6 @@ class ScreenshotManager:
 		return self.grab_area(0, 0, width, height)
 
 	def grab_area(self, x, y, width, height):
-		#TODO: REWRITE API CODE!
-		#api.image.filename = "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
-		#api.image.path = api.tempdir + "screenshot_" + datetime.now().strftime("%H-%M-%S_%d-%m-%y") + '.png'
-		#api.image.mimetype = "image/png"
-		#api.image.title = "Screenshot taken at " + datetime.now().strftime("%H-%M-%S_%d-%m-%y")
-		#api.image.size = (width, height)
 		w = gtk.gdk.get_default_root_window()
 		sz = w.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
@@ -74,7 +68,7 @@ class ScreenshotManager:
 		width, height = window.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
 		pb = pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, width, height)
-		return pb
+		return self._save_pixbuf_to_tempfile(pb)
 
 
 

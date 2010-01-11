@@ -24,7 +24,9 @@ class KeyBindingManager(threading.Thread):
 
 
 	def add_binding_from_string(self, binding_string, action):
+		print 'Adding', binding_string
 		keyval, modifiers = gtk.accelerator_parse(binding_string)
+		print modifiers
 		keycode = gtk.gdk.keymap_get_default().get_entries_for_keyval(keyval)[0][0]
 		self._binding_map[(keycode, modifiers)] = action
 		self.regrab()
@@ -54,13 +56,16 @@ class KeyBindingManager(threading.Thread):
 		while self.running:
 			event = self.display.next_event()
 			if event.type == X.KeyPress and not wait_for_release:
+				print 'Keypress!'
 				keycode = event.detail
 				modifiers = event.state & self.known_modifiers_mask
 				try:
 					action = self._binding_map[(keycode, modifiers)]
 				except KeyError:
+					print 'This isn\'t one of ours.'
 					self.display.allow_events(X.ReplayKeyboard, event.time)
 				else:
+					print 'We caught an action.'
 					wait_for_release = True
 					self.display.allow_events(X.AsyncKeyboard, event.time)
 					self._upcoming_action = (keycode, modifiers, action)
@@ -79,3 +84,12 @@ class KeyBindingManager(threading.Thread):
 		self.running = False
 		self.ungrab()
 		self.display.close()
+
+if __name__ == '__main__':
+	gtk.gdk.threads_init()
+	kbm = KeyBindingManager()
+	def t(*args, **kwargs):
+		print 'Called!'
+	kbm.add_binding_from_string('<Control><Shift>dollar', t)
+	kbm.start()
+	gtk.main()
