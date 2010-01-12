@@ -1,0 +1,9 @@
+[Desktop Entry]
+	Version=0.1
+	Name=Snappy Screen Capture
+	Comment=Quick, easy, customisable screen capture
+	Exec=snappy
+	Icon=snappy
+	Terminal=false
+	Type=Application
+	Categories=Utility;Application;GTK;

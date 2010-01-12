@@ -1,0 +1,31 @@
+#!/usr/bin/python
+import sys, os, platform
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) #dev only
+if platform.system == 'Windows':
+	paths = {
+		'DATA_PATH': '.\\',
+		'ICONS_PATH': r'.\resources\\',
+	}
+else:
+	possible_prefixes = (
+		sys.prefix,
+		'/usr',
+		'/usr/local',
+		# add to this as necessary
+	)
+	for possible_prefix in possible_prefixes:
+		path = os.path.join(possible_prefix, 'share/snappy')
+		if os.path.exists(path):
+			prefix = possible_prefix
+			break
+
+	paths = {
+		'DATA_PATH': os.path.join(prefix, 'share/snappy'),
+		'ICONS_PATH': os.path.join(prefix, 'share/snappy/pixmaps'),
+	}
+
+from snappy.main import main
+if not sys.argv:
+	main(paths=paths)
+else:
+	main(*sys.argv, paths=paths)

@@ -4,6 +4,7 @@ from snappy.backend.configmanagers import get_conf_manager
 from snappy.backend.urlproviders import get_url_shortener_from_conf, list_url_shorteners
 from snappy.backend.httpstorage import get_sharing_service_from_conf, list_sharing_services
 from snappy.ui.gtk.dialogs.preferences import PreferencesArea
+from snappy.globals import PATHS
 import pdb
 import os
 conf_manager = get_conf_manager()
@@ -83,7 +84,7 @@ class SharingTab(PreferencesArea):
 			if key.lower() == clean_name + 'window':
 				self.sharing_window_methods = value()
 		builder = gtk.Builder()
-		path = os.path.join(os.path.dirname(__file__), name + '.glade')
+		path = os.path.join(PATHS['DATA_PATH'], 'glade', 'preferences', 'sharing', name + '.glade')
 		builder.add_from_file(path)
 		window = builder.get_object(name + '_window')
 		builder.connect_signals(self.sharing_window_methods)

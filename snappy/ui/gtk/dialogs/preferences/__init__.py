@@ -1,5 +1,6 @@
 import os
 import gtk
+from snappy.globals import PATHS
 class PreferencesArea(gtk.Alignment):
 	def __init__(self):
 		super(PreferencesArea, self).__init__()
@@ -34,9 +35,9 @@ class Preferences(object):
 		self.window.show_all()
 
 	def _build_dialog(self):
-		location = os.path.join(os.path.dirname(__file__), 'preferences_dialog.glade')
+		path = os.path.join(PATHS['DATA_PATH'], 'glade', 'preferences', 'preferences_dialog.glade')
 		builder = gtk.Builder()
-		builder.add_from_file(location)
+		builder.add_from_file(path)
 		win = builder.get_object('prefs_window')
 		builder.connect_signals(self.callbacks)
 		del builder
@@ -46,7 +47,7 @@ class Preferences(object):
 		gtk.main()
 
 	def add_settings_area(self, location):
-		path = os.path.join(os.path.dirname(__file__), location)
+		path = os.path.join(PATHS['DATA_PATH'], 'glade', 'preferences', location)
 		builder = gtk.Builder()
 		builder.add_from_file(path)
 		area_name = location.split('.')[-2]

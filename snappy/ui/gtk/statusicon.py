@@ -9,6 +9,7 @@ from snappy.ui.gtk.dialogs.organiser import OrganiserDialog
 from snappy.ui.gtk.keybindings import KeyBindingManager
 from snappy.backend.configmanagers import get_conf_manager
 from snappy.ui.gtk.dialogs.preferences import Preferences
+from snappy.globals import PATHS
 import actions
 
 class StatusIcon:
@@ -72,7 +73,7 @@ class StatusIcon:
 			KeyBindingManager().add_binding_from_string(binding, action)
 
 		self.statusicon = gtk.StatusIcon()
-		icon_file = os.path.join(os.path.dirname(__file__), "../../../resources/snappy24.png")
+		icon_file = os.path.join(PATHS['ICONS_PATH'], 'snappy24.png')
 		print icon_file
 		self.statusicon.set_from_file(icon_file)
 		#set_from_file(icon_file) #FIXME: change to /usr/share/icons when installed?
