@@ -5,7 +5,7 @@ import pynotify
 import time
 import os
 import gst
-from snappy.ui.gtk.dialogs.organiser import OrganiserDialog
+import webbrowser
 from snappy.ui.gtk.keybindings import KeyBindingManager
 from snappy.backend.configmanagers import get_conf_manager
 from snappy.ui.gtk.dialogs.preferences import Preferences
@@ -42,9 +42,6 @@ class StatusIcon:
 		self.aboutdialog.hide()
 		del self.aboutdialog
 
-	def hello(self, widget, data=None):
-		print 'Hi, world'
-
 	def capture(self, widget, from_menu=False, type='area'):
 		if from_menu:
 			# Gives enough time for the menu to fade out before grabbing screenshot.
@@ -52,10 +49,28 @@ class StatusIcon:
 		capture_function = getattr(actions, 'capture_%s' % type)
 		result = capture_function()
 		if result is not None:
+			def menuitem_cb(widget, data=None):
+				"""Callback to open the capture in a browser window."""
+				url = widget.get_child().get_text().split(' at ')[0]
+				webbrowser.open(url, new=2) # open url in a new tab
 			# Play an alert sound.
 			self.player.set_state(gst.STATE_PLAYING)
-		notification = pynotify.Notification('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result)
-		notification.show()
+			notification = pynotify.Notification('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result)
+			notification.show()
+			if not self.recent_captures.props.sensitive:
+				self.recent_captures.set_sensitive(True)
+				# For some reason the UI manager adds an 'Empty' menuitem to the RecentCaptures menu.
+				# The following code removes it.
+				child = self.recent_captures.get_submenu().get_children()[1]
+				if child.get_child().get_text() == 'Empty':
+					self.recent_captures.get_submenu().remove(child)
+			menuitem = gtk.MenuItem('%s at %s' % (result, time.strftime('%H:%M')))
+			menuitem.connect('activate', menuitem_cb)
+			self.recent_captures.get_submenu().append(menuitem)
+			import pdb
+			pdb.set_trace()
+
+
 
 	def preferences(self, widget, data=None):
 		Preferences().main()
@@ -80,14 +95,15 @@ class StatusIcon:
 		uimanager = gtk.UIManager()
 		self.actiongroup = gtk.ActionGroup('MenuActions')
 		self.actiongroup.add_actions([
+			('recent_captures', None, '_Recent Captures', None, None, None),
 			('preferences', gtk.STOCK_PREFERENCES, '_Preferences...', None, None, self.preferences),
 			('about', gtk.STOCK_ABOUT, '_About...', None, None, self.about),
 			('quit', gtk.STOCK_QUIT, '_Quit', None, None, self.destroy),
 		])
 		capture_actions = {
-			'area': gtk.Action('capture_area', 'Capture _Area', None, gtk.STOCK_ABOUT),
-			'window': gtk.Action('capture_window', 'Capture Active _Window', None, gtk.STOCK_ABOUT),
-			'screen': gtk.Action('capture_screen', 'Capture Full _Screen', None, gtk.STOCK_ABOUT),
+			'area': gtk.Action('capture_area', 'Capture _Area', None, None),
+			'window': gtk.Action('capture_window', 'Capture Active _Window', None, None),
+			'screen': gtk.Action('capture_screen', 'Capture Full _Screen', None, None),
 		}
 		for name, action in capture_actions.iteritems():
 			action.connect('activate', self.capture, True, name)
@@ -102,8 +118,9 @@ class StatusIcon:
 				<menuitem action="capture_window" />
 				<menuitem action="capture_screen" />
 
+				<separator name="sep1" />
+				<menu action="recent_captures" name="RecentCaptures" />
 				<separator name="sep2" />
-
 				<menuitem action="preferences" />
 				<menuitem action="about" />
 				<menuitem action="quit" />
@@ -111,8 +128,11 @@ class StatusIcon:
 		</ui>
 		''')
 		menu = uimanager.get_widget('ui/StatusIconMenu')
-		## Now we connect these to their handlers.
 
+		self.recent_captures = uimanager.get_widget('ui/StatusIconMenu/RecentCaptures')
+		self.recent_captures.set_sensitive(False)
+
+		## Now we connect the menu signals to their handlers.
 		self.statusicon.connect("popup_menu", self.popup, menu)
 		self.statusicon.connect("activate", self.capture, False, 'area')
 
