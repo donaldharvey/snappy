@@ -10,6 +10,7 @@ from snappy.ui.gtk.keybindings import KeyBindingManager
 from snappy.backend.configmanagers import get_conf_manager
 from snappy.ui.gtk.dialogs.preferences import Preferences
 from snappy.globals import PATHS
+from snappy.ui.audioplayer import AudioPlayer
 import actions
 
 class StatusIcon:
@@ -21,11 +22,11 @@ class StatusIcon:
 			err, debug = message.parse_error()
 			print "gStreamer Error: %s" % err, debug
 
-	def popup(self, widget, button, time, data=None):
+	def popup(self, widget, button, time, menu=None):
 		if button == 3:
-			if data:
-				data.show_all()
-				data.popup(None, None, None, 3, time)
+			if menu:
+				menu.show_all()
+				menu.popup(None, None, None, 3, time)
 		pass
 
 	def destroy(self, widget, data=None):
@@ -48,13 +49,16 @@ class StatusIcon:
 			time.sleep(0.5)
 		capture_function = getattr(actions, 'capture_%s' % type)
 		result = capture_function()
+		print result
 		if result is not None:
+			# If the result is None, the user must have cancelled the capture.
 			def menuitem_cb(widget, data=None):
 				"""Callback to open the capture in a browser window."""
 				url = widget.get_child().get_text().split(' at ')[0]
 				webbrowser.open(url, new=2) # open url in a new tab
+
 			# Play an alert sound.
-			self.player.set_state(gst.STATE_PLAYING)
+			self.player.play()
 			notification = pynotify.Notification('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result)
 			notification.show()
 			if not self.recent_captures.props.sensitive:
@@ -64,12 +68,10 @@ class StatusIcon:
 				child = self.recent_captures.get_submenu().get_children()[1]
 				if child.get_child().get_text() == 'Empty':
 					self.recent_captures.get_submenu().remove(child)
+			# Add a menuitem and connect it to the URL-opening handler above.
 			menuitem = gtk.MenuItem('%s at %s' % (result, time.strftime('%H:%M')))
 			menuitem.connect('activate', menuitem_cb)
 			self.recent_captures.get_submenu().append(menuitem)
-			import pdb
-			pdb.set_trace()
-
 
 
 	def preferences(self, widget, data=None):
@@ -84,6 +86,7 @@ class StatusIcon:
 		mgr = get_conf_manager()
 		bindings = mgr.settings['keyboard_shortcuts.*']
 		for action_name, binding in bindings.iteritems():
+			# Set up the global key bindings.
 			action = getattr(actions, action_name)
 			KeyBindingManager().add_binding_from_string(binding, action)
 
@@ -91,7 +94,9 @@ class StatusIcon:
 		icon_file = os.path.join(PATHS['ICONS_PATH'], 'snappy24.png')
 		print icon_file
 		self.statusicon.set_from_file(icon_file)
-		#set_from_file(icon_file) #FIXME: change to /usr/share/icons when installed?
+
+		# Set up the status icon menu with capture MenuItems
+		# and a 'Recent Captures' menu.
 		uimanager = gtk.UIManager()
 		self.actiongroup = gtk.ActionGroup('MenuActions')
 		self.actiongroup.add_actions([
@@ -132,17 +137,14 @@ class StatusIcon:
 		self.recent_captures = uimanager.get_widget('ui/StatusIconMenu/RecentCaptures')
 		self.recent_captures.set_sensitive(False)
 
-		## Now we connect the menu signals to their handlers.
+		# Connect the menu signals to their handlers.
 		self.statusicon.connect("popup_menu", self.popup, menu)
 		self.statusicon.connect("activate", self.capture, False, 'area')
 
-		# Set up gstreamer player to play alerts.
-		audio_file = os.path.join(os.path.dirname(__file__), '../../../resources/finished.ogg')
+		# Set up the audio player with the finished sound
+		audio_file = os.path.join(PATHS['DATA_PATH'], 'finished.wav')
 		audio_file = os.path.abspath(audio_file)
-		self.player = gst.parse_launch('filesrc location=%s ! oggdemux ! vorbisdec ! audioconvert ! gconfaudiosink' % audio_file)
-		bus = self.player.get_bus()
-		bus.add_signal_watch()
-		bus.connect("message", self._gst_player_message)
+		self.player = AudioPlayer(audio_file)
 		self.statusicon.set_visible(True)
 
 if __name__ == '__main__':

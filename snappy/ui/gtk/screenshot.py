@@ -51,7 +51,6 @@ class ScreenshotManager:
 	def grab_fullscreen(self):
 		height = gtk.gdk.screen_height()
 		width = gtk.gdk.screen_width()
-		print width, height
 		return self.grab_area(0, 0, width, height)
 
 	def grab_area(self, x, y, width, height):
@@ -64,7 +63,6 @@ class ScreenshotManager:
 	def grab_window(self):
 		window = self._get_active_window()
 		title = self._get_window_title(window)
-		print title
 		width, height = window.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
 		pb = pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, width, height)
