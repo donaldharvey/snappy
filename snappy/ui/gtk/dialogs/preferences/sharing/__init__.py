@@ -21,6 +21,7 @@ class SharingWindow(PreferencesArea):
 
 class SharingTab(PreferencesArea):
 	def startup(self):
+		self.get_toplevel()
 		self.setup_combo_box('url_shortener_service')
 		self.setup_combo_box('http_sharing_service')
 		if self.get_widget_by_name('sharing_url_use_anonymous').get_active():
@@ -91,4 +92,7 @@ class SharingTab(PreferencesArea):
 		del builder
 		self.sharing_window_methods.toplevel = window
 		self.sharing_window_methods.startup()
+		parent_win = self.get_toplevel()
+		window.set_transient_for(parent_win)
+		window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
 		window.show()
