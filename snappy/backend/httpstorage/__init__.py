@@ -1,10 +1,37 @@
 import os
-import __builtin__
-class AuthError(ValueError):
-	def __init__(self, value):
-		self.value = value
-	def __str__(self):
-		return repr(self.value)
+from mimetypes import guess_type
+import httplib
+import pynotify
+
+class SharingError(Exception):
+	default_title = 'Sharing Error'
+	default_content = 'An error occurred when uploading your screenshot.'
+	def notify_error(self):
+		try:
+			title = self.args[1]
+		except IndexError:
+			title = self.default_title
+		try:
+			content = self.args[0]
+		except IndexError:
+			content = default_content
+		notification = pynotify.Notification(title, content)
+		notification.show()
+		return None
+	pass
+
+class AuthError(SharingError, ValueError):
+	default_title = 'Authentication Error'
+	default_content = 'An issue has occurred with authentication. Check your settings and try again.'
+	pass
+
+class ConnectionError(SharingError, EnvironmentError):
+	default_title = 'Connection Error'
+	default_content = '''
+		Snappy could not connect to the server.
+		This could be a problem with the server, or it could mean you aren't connected to the internet.
+	'''
+	pass
 
 class WebStorage(object):
 	"""
@@ -51,16 +78,15 @@ def post_multipart(url, fields, files):
 	urlparts = urlparse.urlsplit(url)
 	host, selector = urlparts[1], urlparts[2]
 	content_type, body = _encode_multipart_formdata(fields, files)
-	h = httplib.HTTP(host)
+	h = httplib.HTTPConnection(host)
 	h.putrequest('POST', selector)
 	h.putheader('content-type', content_type)
 	h.putheader('content-length', str(len(body)))
 	h.endheaders()
 	h.send(body)
-	errcode, errmsg, headers = h.getreply()
-	return h.file.read()
+	return h.getresponse()
 
-def _encode_multipart_formdata(cls, fields, files):
+def _encode_multipart_formdata(fields, files):
 	"""
 	fields is a sequence of (name, value) elements for regular form fields.
 	files is a sequence of (name, filename, value) elements for data to be uploaded as files
@@ -69,7 +95,6 @@ def _encode_multipart_formdata(cls, fields, files):
 	BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
 	CRLF = '\r\n'
 	L = []
-	print fields
 	for (key, value) in fields:
 		L.append('--' + BOUNDARY)
 		L.append('Content-Disposition: form-data; name="%s"' % str(key))

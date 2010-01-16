@@ -2,9 +2,16 @@
 import gtk
 import gobject
 import threading
-from Xlib.display import Display
-from Xlib import X
+import platform
+if platform.system() != 'Windows':
+	from Xlib.display import Display
+	from Xlib import X
+else:
+	import pythoncom
+	import pyHook
+
 from snappy.utils import Singleton
+
 class KeyBindingManager(threading.Thread):
 	__metaclass__ = Singleton
 
@@ -84,6 +91,19 @@ class KeyBindingManager(threading.Thread):
 		self.running = False
 		self.ungrab()
 		self.display.close()
+
+class WinKeyBindingManager(KeyBindingManager):
+	def __init__(self):
+		super(super(WinKeyBindingManager, self)).__init__()
+		self.hook_manager = pyHook.HookManager()
+		self.hook_manager.KeyUp = self.handle_keypress
+
+	def add_binding_from_string(self, binding_string, action):
+		pass
+
+	def handle_keypress(self, event):
+		pass
+
 
 if __name__ == '__main__':
 	gtk.gdk.threads_init()
