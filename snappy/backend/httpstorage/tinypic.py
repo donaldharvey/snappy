@@ -41,7 +41,7 @@ class TinyPicStorage(WebStorage):
 			upload_form['action'],
 			data.items(),
 			[('the_file', filepath, value)]
-		)
+		).read()
 		return self._get_url_from_result(result)
 
 	def _get_url_from_result(self, result):

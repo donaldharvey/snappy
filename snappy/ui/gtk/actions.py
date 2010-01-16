@@ -1,27 +1,44 @@
 from areaselect import SelectArea
 from screenshot import ScreenshotManager
 from snappy.backend.configmanagers import get_conf_manager
-from snappy.backend.httpstorage import get_sharing_service_from_conf
+from snappy.backend.httpstorage import get_sharing_service_from_conf, SharingError
 from snappy.backend.urlproviders import get_url_shortener_from_conf
+import pynotify
 import gtk
+import gobject
 
 def _upload_file(filename):
 	configmanager = get_conf_manager()
 
 	sharingservice = get_sharing_service_from_conf(configmanager)
 	urlprovider = get_url_shortener_from_conf(configmanager)
-
-	# Store the file online
-	url = sharingservice.store(filename)
-	print 'Saved to', url
-
-	# Get the short url
-	shorturl = urlprovider.shorten(url)
+	try:
+		# Store the file online
+		url = sharingservice.store(filename)
+		print 'Saved to', url
+	except SharingError, e:
+		try:
+			title = e.args[1]
+		except IndexError:
+			title = e.default_title
+		notification = pynotify.Notification(title, e.args[0])
+		notification.show()
+		return None
+	try:
+		# Get the short url
+		shorturl = urlprovider.shorten(url)
+	except Exception:
+		shorturl = url
 
 	# Finally, add it to the clipboard.
 	clipboard = gtk.clipboard_get('CLIPBOARD')
 	clipboard.set_text(shorturl)
 
+	# Run post-upload hook
+	try:
+		configmanager.post_upload_hook(shorturl)
+	except Exception:
+		pass
 	return shorturl
 
 def capture_area():
@@ -30,12 +47,14 @@ def capture_area():
 	storage provider and add a short url to the clipboard.
 	'''
 	# Get the required area.
+
 	selectarea = SelectArea()
 	selectarea.main()
 	# Save to a temp file.
 	if selectarea.cancelled:
 		return None
 	return _upload_file(selectarea.filename)
+
 
 def capture_window():
 	filename = ScreenshotManager().grab_window()

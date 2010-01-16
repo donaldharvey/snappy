@@ -12,11 +12,15 @@ class ConfigDict(DictMixin, object):
 class ConfigManager(object):
 	__metaclass__ = Singleton
 	def __init__(self):
-		super(ConfigManager, self).__init__()
 		self.settings = ConfigDict()
+		self.post_upload_hook = None
 
 	def set_password(self, key, password):
 		self.settings[key] = password
 
 	def get_password(self, key):
 		return self.settings[key]
+
+	def set_post_upload_hook(self, func):
+		self.post_upload_hook = func
+
