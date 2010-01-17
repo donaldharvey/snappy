@@ -74,6 +74,31 @@ def compute_border_colour():
 	return colour
 
 
+def rounded_rectangle(cr, x, y, w, h, radius_x=5, radius_y=5):
+	"""Draw a rectangle with rounded corners according to radius_x and radius_y."""
+	# Following code is from http://www.cairographics.org/cookbook/roundedrectangles/
+	ARC_TO_BEZIER = 0.55228475
+	if radius_x > w - radius_x:
+		radius_x = w / 2
+	if radius_y > h - radius_y:
+		radius_y = h / 2
+
+	#approximate (quite close) the arc using a bezier curve
+	c1 = ARC_TO_BEZIER * radius_x
+	c2 = ARC_TO_BEZIER * radius_y
+
+	cr.new_path()
+	cr.move_to( x + radius_x, y)
+	cr.rel_line_to( w - 2 * radius_x, 0.0)
+	cr.rel_curve_to( c1, 0.0, radius_x, c2, radius_x, radius_y)
+	cr.rel_line_to( 0, h - 2 * radius_y)
+	cr.rel_curve_to( 0.0, c2, c1 - radius_x, radius_y, -radius_x, radius_y)
+	cr.rel_line_to( -w + 2 * radius_x, 0)
+	cr.rel_curve_to( -c1, 0, -radius_x, -c2, -radius_x, -radius_y)
+	cr.rel_line_to(0, -h + 2 * radius_y)
+	cr.rel_curve_to(0.0, -c2, radius_x - c1, -radius_y, radius_x, -radius_y)
+	cr.close_path()
+
 
 class SelectArea(gtk.Window):
 	'''
@@ -99,11 +124,17 @@ class SelectArea(gtk.Window):
 	def keyup(self, widget, event):
 		name = gtk.gdk.keyval_name(event.keyval)
 		if name == 'Escape':
-			# escape key pressed. Destroy the window
-			self.cancelled = True
-			self.hide_all()
-			self.destroy_win()
-			gtk.main_quit()
+			if self.rect_selection.width and self.rect_selection.height:
+				self.rect_selection = gtk.gdk.Rectangle(0, 0, 0, 0)
+				self.show_intro = True
+				self.mousedownlocation = None
+				self.queue_draw()
+			else:
+				# escape key pressed. Destroy the window
+				self.cancelled = True
+				self.hide_all()
+				self.destroy_win()
+				gtk.main_quit()
 		elif name == 'Shift_L' or name == 'Shift_R':
 			self.keep_square = False
 
@@ -112,6 +143,8 @@ class SelectArea(gtk.Window):
 		print self.mousedownlocation
 
 	def mousemove(self, widget, event):
+		if self.mousedownlocation is None:
+			return
 		self.mouselocation = (event.x_root, event.y_root)
 		mx = event.x_root
 		my = event.y_root
@@ -145,6 +178,8 @@ class SelectArea(gtk.Window):
 		self.queue_draw()
 
 	def released(self, widget, event):
+		if not (self.rect_selection.width and self.rect_selection.height):
+			return
 		self._is_finished = True
 		self.queue_draw()
 		#self.hide_all()
@@ -193,6 +228,58 @@ class SelectArea(gtk.Window):
 			cr.stroke()
 
 		cr.fill()
+
+		if self.show_intro:
+			# Draw the text telling the user what to do.
+			self.pg = pangocairo.CairoContext(cr)
+			# Check if the pango layout for the intro text exists,
+			# if not create it and add necessary attributes
+			try:
+				self.pgl_intro
+			except AttributeError:
+				self.pgl_intro = self.pg.create_layout()
+				pgfont = pango.FontDescription("sans bold 18")
+				pgfont.set_family("MgOpen Moderna")
+				self.pgl_intro.set_markup('Drag the mouse to select an area to capture, or press the Escape key to cancel.')
+				self.pgl_intro.set_font_description(pgfont)
+
+			(pglw, pglh) = self.pgl_intro.get_pixel_size()
+			cr.set_source_rgba(0.1, 0.1, 0.1, self.intro_opacity)
+			padding = (25, 20)
+			self.pgl_intro.set_width((width - padding[0]) * pango.SCALE)
+			rounded_rectangle(
+				cr,
+				(width / 2) - ((pglw + padding[0]) / 2),
+				(height / 2) - ((pglh + padding[1]) / 2),
+				pglw + padding[0],
+				pglh + padding[1],
+				5,
+				5
+			)
+			cr.fill()
+
+			cr.set_source_rgba(1, 1, 1, self.intro_opacity)
+			step = 0.05
+
+			# Fade the intro text in or out.
+			if self.rect_selection.height and self.rect_selection.width:
+				if self.intro_opacity > step:
+					self.intro_opacity -= step
+				else:
+					self.intro_opacity = 0.00
+					self.show_intro = False
+			else:
+				if 1 - self.intro_opacity > step:
+					self.intro_opacity += step
+				else:
+					self.intro_opacity = 1.00
+					self.show_intro
+
+			pglx = (width / 2) - (pglw / 2)
+			pgly = (height / 2) - (pglh / 2)
+			cr.move_to(pglx, pgly)
+			self.pg.show_layout(self.pgl_intro)
+
 		if not self._is_finished and (self.rect_selection.x > 0 or self.rect_selection.y > 0):
 			cr.set_source_rgba(self.border_colour_r, self.border_colour_g, self.border_colour_b, 1)
 			cr.set_line_width(2)
@@ -203,30 +290,26 @@ class SelectArea(gtk.Window):
 			cr.close_path()
 			cr.stroke()
 
-		if self.rect_selection.width > 0 and self.rect_selection.height > 0 and not self._is_finished:
-			pg = pangocairo.CairoContext(cr)
-			pgl = pg.create_layout()
-			(pglw, pglh) = pgl.get_pixel_size()
-			pgfont = pango.FontDescription("sans bold 12")
-			pgfont.set_family("MgOpen Moderna")
-			pgl.set_markup(str(self.rect_selection.width) + 'px x ' + str(self.rect_selection.height) + 'px\n<span size="small">Hold Shift for square</span>')
-			pgl.set_font_description(pgfont)
+			self.pg = pangocairo.CairoContext(cr)
+			try:
+				self.pgl_area_text
+			except AttributeError:
+				self.pgl_area_text = self.pg.create_layout()
+				pgfont = pango.FontDescription("sans bold 12")
+				pgfont.set_family("MgOpen Moderna")
+				self.pgl_area_text.set_font_description(pgfont)
+
+			self.pgl_area_text.set_markup(str(self.rect_selection.width) + 'px x ' + str(self.rect_selection.height) + 'px\n<span size="small">Hold Shift for square, or press Escape to start again.</span>')
+			(pglw, pglh) = self.pgl_area_text.get_pixel_size()
 			#print 'Pango layout width, height: ' + str(pglw + self.rect_selection.width) + ', ' + str(pglh + self.rect_selection.height)
-			pglx = float(self.rect_selection.x - pglw)
-			pgly = float(self.rect_selection.height + self.rect_selection.y)
+			pglx = float(s.x)
+			pgly = float(s.height + s.y)
+
 			#print width, height
 			cr.move_to(pglx, pgly)
-			pg.show_layout(pgl)
-
-		# setup mask
-		pm = gtk.gdk.Pixmap(None, width, height, 1)
-		pmcr = pm.cairo_create()
-		pmcr.rectangle(0, 0, float(width), float(height))
-		pmcr.fill()
-		pmcr.stroke()
-
-		self.input_shape_combine_mask(pm, 0, 0)
-
+			self.pg.show_layout(self.pgl_area_text)
+		if self.show_intro:
+			self.queue_draw()
 		return False
 
 	def destroy_win(self, widget=None, data=None):
@@ -257,6 +340,8 @@ class SelectArea(gtk.Window):
 		self.rect_selection = gtk.gdk.Rectangle(0, 0, 0, 0)
 		self._is_finished = False
 		self.keep_square = False
+		self.intro_opacity = 1.0
+		self.show_intro = True
 		self.pixbuf = ScreenshotManager().grab_fullscreen()
 		gtk.Window.__init__(self)
 		area = gtk.DrawingArea()
