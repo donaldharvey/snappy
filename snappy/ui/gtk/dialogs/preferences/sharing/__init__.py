@@ -24,7 +24,9 @@ class SharingTab(PreferencesArea):
 		self.get_toplevel()
 		self.setup_combo_box('url_shortener_service')
 		self.setup_combo_box('http_sharing_service')
-		if self.get_widget_by_name('sharing_url_use_anonymous').get_active():
+		is_anonymous = bool(int(conf_manager.settings['sharing.shortener_anonymous']))
+		self.get_widget_by_name('sharing_url_use_anonymous').set_active(is_anonymous)
+		if is_anonymous:
 			self.get_widget_by_name('url_username').set_sensitive(False)
 			self.get_widget_by_name('url_password').set_sensitive(False)
 
@@ -59,10 +61,11 @@ class SharingTab(PreferencesArea):
 		if widget.get_name() == 'sharing_url_use_anonymous':
 			self.get_widget_by_name('url_username').set_sensitive(widget.get_active() == False)
 			self.get_widget_by_name('url_password').set_sensitive(widget.get_active() == False)
+			conf_manager.settings['sharing.shortener_anonymous'] = str(int(widget.get_active()))
 		elif widget.get_name() == 'url_username':
-			conf_manager.settings['sharing.shortener_username'] = widget.get_value()
+			conf_manager.settings['sharing.shortener_username'] = widget.get_text()
 		elif widget.get_name() == 'url_password':
-			conf_manager.set_password('sharing.shortener_password', widget.get_value())
+			conf_manager.set_password('sharing.shortener_password', widget.get_text())
 
 	def change_sharing_combo(self, widget, data=None):
 		model = widget.get_model()
