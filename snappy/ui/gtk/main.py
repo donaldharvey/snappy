@@ -5,6 +5,7 @@ def setup_defaults():
 	defaults = {
 		'sharing.sharingservice': 'tinypic',
 		'sharing.shortener': 'none',
+		'sharing.shortener_anonymous': 1,
 		'keyboard_shortcuts.capture_area': '<Control>Print',
 		'keyboard_shortcuts.capture_window': '<Control><Shift>Print',
 		'keyboard_shortcuts.capture_screen': '<Super>Print',

@@ -1,4 +1,5 @@
 import os
+from snappy.backend.httpstorage import AuthError
 class UrlProvider:
 	'''
 	This class provides URL shortening to various Snappy functions.
@@ -6,9 +7,10 @@ class UrlProvider:
 	plugin. Look at the bit.ly class for a reference implementation.
 	'''
 	nice_name = 'None'
+	defaults = {}
 	def __init__(self, configmanager):
 		self.configmanager = configmanager
-		self.lasturl = None
+		self.configmanager.settings.defaults.update(self.defaults)
 
 	def shorten(self, url):
 		self.lasturl = url
