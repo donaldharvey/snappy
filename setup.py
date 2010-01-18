@@ -32,9 +32,7 @@ def search_for_packages():
 			if dirname.startswith('.'): del dirnames[i]
 		if '__init__.py' in filenames:
 			packages.append('.'.join(fullsplit(dirpath)))
-		elif filenames:
-			data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
-	return packages
+		return packages
 
 packages = search_for_packages()
 data = {
@@ -50,7 +48,12 @@ data = {
 	'data_files': [
 		('share/applications', ['resources/snappy.desktop']),
 		('share/pixmaps', ['resources/snappy.png']),
+		('share/icons/hicolor/16x16/apps', ['resources/16/snappy.png']),
+		('share/icons/hicolor/24x24/apps', ['resources/24/snappy.png']),
 		('share/icons/hicolor/48x48/apps', ['resources/snappy.png']),
+		('share/icons/hicolor/32x32/apps', ['resources/32/snappy.png']),
+		('share/icons/hicolor/64x64/apps', ['resources/64/snappy.png']),
+		('share/icons/hicolor/scalable/apps', ['resources/snappy.svg']),
 		('share/snappy/pixmaps', glob('resources/*.png')),
 		('share/snappy', ['resources/finished.wav']),
 		('share/snappy/glade/preferences', glob('resources/glade/preferences/*.glade')),
