@@ -61,6 +61,6 @@ def capture_window():
 	return _upload_file(filename)
 
 def capture_screen():
-	filename = ScreenshotManager()._save_pixbuf_to_tempfile(
+	filename = ScreenshotManager()._save_pixbuf_to_file(
 		ScreenshotManager().grab_fullscreen())
 	return _upload_file(filename)

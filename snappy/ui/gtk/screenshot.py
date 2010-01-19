@@ -20,14 +20,17 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 from tempfile import mkstemp
-from datetime import datetime, date, time
+import time
 from snappy.utils import Singleton
-class ScreenshotManager:
+from snappy.backend.configmanagers import get_conf_manager
+class ScreenshotManager(object):
 	'''
 	This class contains mainly backend code to capture screenshots.
 	Its most important function is grab_area().
 	'''
 	__metaclass__ = Singleton
+	def __init__(self):
+		self.configmanager = get_conf_manager()
 	def _get_window_title(self, window):
 		'''Get a gdk.Window's title'''
 		name = window.property_get('_NET_WM_NAME') #test this
@@ -43,10 +46,17 @@ class ScreenshotManager:
 		current_window = current_window.get_toplevel()
 		return current_window
 
-	def _save_pixbuf_to_tempfile(self, pb):
-		filename = mkstemp('.png')[1]
-		pb.save(filename, 'png')
-		return filename
+	def _save_pixbuf_to_file(self, pb, filename=''):
+		if int(self.configmanager.settings['use_temp_directory']):
+			filepath = mkstemp('.png')[1]
+		else:
+			# Get the directory and remove the file:// at the start of the path
+			directory = self.configmanager.settings['screenshot_directory'][7:]
+			if not filename:
+				filename = time.strftime('%a %d %b %Y at %H-%M-%S.png')
+			filepath = os.path.join(directory, filename)
+		pb.save(filepath, 'png')
+		return filepath
 
 	def grab_fullscreen(self):
 		height = gtk.gdk.screen_height()
@@ -66,8 +76,7 @@ class ScreenshotManager:
 		width, height = window.get_size()
 		pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, width, height)
 		pb = pb.get_from_drawable(window, window.get_colormap(), 0, 0, 0, 0, width, height)
-		return self._save_pixbuf_to_tempfile(pb)
-
+		return self._save_pixbuf_to_file(pb, filename=title)
 
 
 screenshotmanager = ScreenshotManager()
