@@ -9,6 +9,7 @@ def setup_defaults():
 		'keyboard_shortcuts.capture_area': '<Control>Print',
 		'keyboard_shortcuts.capture_window': '<Control><Shift>Print',
 		'keyboard_shortcuts.capture_screen': '<Super>Print',
+		'use_temp_directory': 1,
 	}
 	conf_manager.settings.defaults.update(defaults)
 

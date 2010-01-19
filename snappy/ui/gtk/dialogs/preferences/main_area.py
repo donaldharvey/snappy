@@ -7,6 +7,7 @@ class MainAreaTab(PreferencesArea):
 		print self.get_widget_by_name('quickshot')
 		for name, binding in conf_manager.settings['keyboard_shortcuts.*'].iteritems():
 			self.get_widget_by_name(name).set_text(binding)
+		self.get_widget_by_name('use_temp_directory').set_active(int(conf_manager.settings['use_temp_directory']))
 		self.modifier_keyvals = (
 			'Control_L',
 			'Control_R',
@@ -51,11 +52,19 @@ class MainAreaTab(PreferencesArea):
 		print 'Key %s pressed.' % label
 		gtk.gdk.keyboard_ungrab()
 
-def kbd_entry_release(self, widget, event, data=None):
-	pass
+	def browse_for_directory(self, widget, data=None):
+		file_chooser = gtk.FileChooserDialog('Select a directory in which to save screenshots', widget.get_toplevel(),
+			gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK)
+		)
+		if conf_manager.settings['screenshot_directory']:
+			file_chooser.set_uri(conf_manager.settings['screenshot_directory'])
+		response = file_chooser.run()
+		if response == gtk.RESPONSE_OK:
+			file_chooser.hide()
+			conf_manager.settings['screenshot_directory'] = file_chooser.get_uri()
+			file_chooser.destroy()
+		else:
+			file_chooser.destroy()
 
-def replace_gnome_screenshot():
-	pass
-
-def unreplace_gnome_screenshot():
-	pass
+	def temp_directory_toggle(self, widget, data=None):
+		conf_manager.settings['use_temp_directory'] = str(int(widget.get_active()))

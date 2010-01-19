@@ -71,7 +71,7 @@ class StatusIcon:
 			# Add a menuitem and connect it to the URL-opening handler above.
 			menuitem = gtk.MenuItem('%s at %s' % (result, time.strftime('%H:%M')))
 			menuitem.connect('activate', menuitem_cb)
-			self.recent_captures.get_submenu().append(menuitem)
+			self.recent_captures.get_submenu().insert(menuitem, 0)
 
 
 	def preferences(self, widget, data=None):

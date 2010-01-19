@@ -182,16 +182,13 @@ class SelectArea(gtk.Window):
 			return
 		self._is_finished = True
 		self.queue_draw()
-		#self.hide_all()
-		#self.destroy_win()
-		#gtk.main_quit()
+		self.hide_all()
+		self.destroy_win()
 		cropped_pixbuf = self.pixbuf.subpixbuf(self.rect_selection.x,
 			self.rect_selection.y, self.rect_selection.width,
 			self.rect_selection.height)
-		self.filename = ScreenshotManager()._save_pixbuf_to_tempfile(cropped_pixbuf)
+		self.filename = ScreenshotManager()._save_pixbuf_to_file(cropped_pixbuf)
 		print self.filename
-		self.hide_all()
-		self.destroy_win()
 		gtk.main_quit()
 
 
@@ -280,7 +277,7 @@ class SelectArea(gtk.Window):
 			cr.move_to(pglx, pgly)
 			self.pg.show_layout(self.pgl_intro)
 
-		if not self._is_finished and (self.rect_selection.x > 0 or self.rect_selection.y > 0):
+		if not self._is_finished and (s.width > 0 and s.height > 0):
 			cr.set_source_rgba(self.border_colour_r, self.border_colour_g, self.border_colour_b, 1)
 			cr.set_line_width(2)
 			cr.move_to(s.x, s.y)
@@ -308,6 +305,7 @@ class SelectArea(gtk.Window):
 			#print width, height
 			cr.move_to(pglx, pgly)
 			self.pg.show_layout(self.pgl_area_text)
+
 		if self.show_intro:
 			self.queue_draw()
 		return False

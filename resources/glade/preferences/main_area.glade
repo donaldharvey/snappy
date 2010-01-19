@@ -169,16 +169,53 @@
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkCheckButton" id="checkbutton2">
-                        <property name="label" translatable="yes">Replace gnome-screenshot in Metacity</property>
+                      <object class="GtkHBox" id="hbox1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
+                        <child>
+                          <object class="GtkLabel" id="directory_label">
+                            <property name="visible">True</property>
+                            <property name="xalign">0.49000000953674316</property>
+                            <property name="xpad">10</property>
+                            <property name="label" translatable="yes">Screenshot storage directory:</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="browse_for_directory">
+                            <property name="label" translatable="yes">Browse...</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <signal name="clicked" handler="browse_for_directory"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="use_temp_directory">
+                        <property name="label" translatable="yes">Do not save screenshots to a directory, just upload.</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="temp_directory_toggle"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
