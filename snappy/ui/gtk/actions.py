@@ -8,6 +8,11 @@ import gtk
 import gobject
 
 def _upload_file(filename):
+	"""
+	Upload the file `filename` to the configured sharing service, and shortens
+	the URL with the configured URL shortener. Also copies the shortened URL
+	to the clipboard, and runs the post upload hook (if there is one).
+	"""
 	configmanager = get_conf_manager()
 
 	sharingservice = get_sharing_service_from_conf(configmanager)
@@ -46,8 +51,7 @@ def capture_area():
 	Take a quick screenshot of an area on the screen, upload to an online
 	storage provider and add a short url to the clipboard.
 	'''
-	# Get the required area.
-
+	# Get the area.
 	selectarea = SelectArea()
 	selectarea.main()
 	# Save to a temp file.

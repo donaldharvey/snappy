@@ -1,6 +1,9 @@
 from snappy.backend.configmanagers import get_conf_manager
 import gtk
 def setup_defaults():
+	"""
+	Sort out some of the default options for the config manager.
+	"""
 	conf_manager = get_conf_manager()
 	defaults = {
 		'sharing.sharingservice': 'tinypic',

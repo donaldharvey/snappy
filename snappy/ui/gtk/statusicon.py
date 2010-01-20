@@ -9,20 +9,13 @@ import webbrowser
 from snappy.ui.gtk.keybindings import KeyBindingManager
 from snappy.backend.configmanagers import get_conf_manager
 from snappy.ui.gtk.dialogs.preferences import Preferences
-from snappy.globals import PATHS
 from snappy.ui.audioplayer import AudioPlayer
+from snappy.globals import PATHS
 import actions
 
 class StatusIcon:
-	def _gst_player_message(self, bus, message):
-		if message.type == gst.MESSAGE_EOS:
-			self.player.set_state(gst.STATE_NULL)
-		elif message.type == gst.MESSAGE_ERROR:
-			self.player.set_state(gst.STATE_NULL)
-			err, debug = message.parse_error()
-			print "gStreamer Error: %s" % err, debug
-
 	def popup(self, widget, button, time, menu=None):
+		"""Popup the menu."""
 		if button == 3:
 			if menu:
 				menu.show_all()
@@ -34,16 +27,22 @@ class StatusIcon:
 
 	def about(self, widget, data=None):
 		# For now, data is hardcoded in; later get these from setup.py
-		self.aboutdialog = gtk.AboutDialog()
-		self.aboutdialog.set_name('Snappy')
-		self.aboutdialog.set_version('0.1 Beta')
-		self.aboutdialog.set_copyright(u'Copyright \u00A9 2009-2010 Donald Harvey')
-		self.aboutdialog.set_comments('A quick, customisable and easy-to-use screen capture app for Linux.')
-		response = self.aboutdialog.run()
-		self.aboutdialog.hide()
-		del self.aboutdialog
+		aboutdialog = gtk.AboutDialog()
+		aboutdialog.set_name('Snappy')
+		aboutdialog.set_version('0.1 Beta')
+		aboutdialog.set_copyright(u'Copyright \u00A9 2009-2010 Donald Harvey')
+		aboutdialog.set_comments('A quick, customisable and easy-to-use screen capture app for Linux.')
+		response = aboutdialog.run()
+		aboutdialog.destroy()
 
-	def capture(self, widget, from_menu=False, type='area'):
+	def capture(self, widget=None, from_menu=False, type='area'):
+		"""
+		The handler for all three types of screen capture.
+		The type argument specifies the type of screen capture; one of area,
+		fullscreen or active_window.
+		As well as adding an item to the Recent Captures menu, this function
+		also plays the alert sound and displays a notification.
+		"""
 		if from_menu:
 			# Gives enough time for the menu to fade out before grabbing screenshot.
 			time.sleep(0.5)
@@ -59,7 +58,9 @@ class StatusIcon:
 
 			# Play an alert sound.
 			self.player.play()
+			icon = os.path.join(PATHS['DATA_PATH'], 'uploaded.svg')
 			notification = pynotify.Notification('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result)
+			notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(icon))
 			notification.show()
 			if not self.recent_captures.props.sensitive:
 				self.recent_captures.set_sensitive(True)
@@ -78,6 +79,7 @@ class StatusIcon:
 		Preferences().main()
 
 	def main(self):
+		"""Start up the KeyBindingManager and the gtk main loop."""
 		KeyBindingManager().start()
 		gtk.main()
 
@@ -87,8 +89,8 @@ class StatusIcon:
 		bindings = mgr.settings['keyboard_shortcuts.*']
 		for action_name, binding in bindings.iteritems():
 			# Set up the global key bindings.
-			action = getattr(actions, action_name)
-			KeyBindingManager().add_binding_from_string(binding, action)
+			action = action_name.split('_', 1)[1]
+			KeyBindingManager().add_binding_from_string(binding, self.capture, (None, False, action))
 
 		self.statusicon = gtk.StatusIcon()
 		icon_file = os.path.join(PATHS['ICONS_PATH'], 'snappy24.png')
@@ -97,6 +99,7 @@ class StatusIcon:
 
 		# Set up the status icon menu with capture MenuItems
 		# and a 'Recent Captures' menu.
+		# It might be a good idea to move this out to a GtkBuilder file sometime.
 		uimanager = gtk.UIManager()
 		self.actiongroup = gtk.ActionGroup('MenuActions')
 		self.actiongroup.add_actions([
