@@ -13,6 +13,9 @@ else:
 from snappy.utils import Singleton
 
 class KeyBindingManager(threading.Thread):
+	"""
+	An Xlib-based global key bindings manager.
+	"""
 	__metaclass__ = Singleton
 
 	def __init__(self):
@@ -30,10 +33,16 @@ class KeyBindingManager(threading.Thread):
 			self.known_modifiers_mask |= mod
 
 
-	def add_binding_from_string(self, binding_string, action):
+	def add_binding_from_string(self, binding_string, action, args=(), kwargs={}):
+		"""
+		Add a key binding from an accelerator string.
+		Uses gtk.accelerator_parse to parse the string; according to the docs,
+		this is "fairly liberal" and "allows abbreviations such as '<Ctrl>' and '<Ctl>'".
+		"""
 		print 'Adding', binding_string
 		keyval, modifiers = gtk.accelerator_parse(binding_string)
 		print modifiers
+		action = (action, args, kwargs)
 		keycode = gtk.gdk.keymap_get_default().get_entries_for_keyval(keyval)[0][0]
 		self._binding_map[(keycode, modifiers)] = action
 		self.regrab()
@@ -53,7 +62,8 @@ class KeyBindingManager(threading.Thread):
 
 	def _action_idle(self, action):
 		gtk.gdk.threads_enter()
-		action()
+		action, args, kwargs = action
+		gobject.idle_add(action, args, kwargs)
 		gtk.gdk.threads_leave()
 		return False
 
@@ -63,21 +73,21 @@ class KeyBindingManager(threading.Thread):
 		while self.running:
 			event = self.display.next_event()
 			if event.type == X.KeyPress and not wait_for_release:
-				print 'Keypress!'
 				keycode = event.detail
 				modifiers = event.state & self.known_modifiers_mask
 				try:
 					action = self._binding_map[(keycode, modifiers)]
 				except KeyError:
-					print 'This isn\'t one of ours.'
+					# This key binding isn't handled by Snappy.
 					self.display.allow_events(X.ReplayKeyboard, event.time)
 				else:
-					print 'We caught an action.'
+					# Get the action ready for when the key combo is released
 					wait_for_release = True
 					self.display.allow_events(X.AsyncKeyboard, event.time)
 					self._upcoming_action = (keycode, modifiers, action)
 
 			elif event.type == X.KeyRelease and wait_for_release and event.detail == self._upcoming_action[0]:
+				# The user has released the key combo; run the queued action
 				wait_for_release = False
 				action = self._upcoming_action[2]
 				del self._upcoming_action
@@ -93,6 +103,9 @@ class KeyBindingManager(threading.Thread):
 		self.display.close()
 
 class WinKeyBindingManager(KeyBindingManager):
+	"""
+	A Windows key binding manager that uses Win32 hooks (via PyHook).
+	"""
 	def __init__(self):
 		super(super(WinKeyBindingManager, self)).__init__()
 		self.hook_manager = pyHook.HookManager()

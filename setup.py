@@ -55,7 +55,7 @@ data = {
 		('share/icons/hicolor/64x64/apps', ['resources/64/snappy.png']),
 		('share/icons/hicolor/scalable/apps', ['resources/snappy.svg']),
 		('share/snappy/pixmaps', glob('resources/*.png')),
-		('share/snappy', ['resources/finished.wav']),
+		('share/snappy', ['resources/finished.wav', 'resources/uploaded.png']),
 		('share/snappy/glade/preferences', glob('resources/glade/preferences/*.glade')),
 		('share/snappy/glade/preferences/sharing', glob('resources/glade/preferences/sharing/*.glade')),
 	],
