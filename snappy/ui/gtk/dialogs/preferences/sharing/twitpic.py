@@ -5,7 +5,7 @@ conf_manager = get_conf_manager()
 class TwitPicWindow(SharingWindow):
 	def startup(self):
 		self.data = {}
-		for key, value in conf_manager.settings['twitpic.*'].iteritems():
+		for key, value in conf_manager['twitpic.*'].iteritems():
 			if value:
 				self.get_widget_by_name(key).set_text(value)
 		try:
@@ -21,5 +21,5 @@ class TwitPicWindow(SharingWindow):
 			if key == 'password':
 				conf_manager.set_password('twitpic.password', value)
 			else:
-				conf_manager.settings['twitpic.%s' % key] = value
+				conf_manager['twitpic.%s' % key] = value
 		self.close()

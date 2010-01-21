@@ -47,11 +47,11 @@ class ScreenshotManager(object):
 		return current_window
 
 	def _save_pixbuf_to_file(self, pb, filename=''):
-		if int(self.configmanager.settings['use_temp_directory']):
+		if int(self.configmanager['use_temp_directory']):
 			filepath = mkstemp('.png')[1]
 		else:
 			# Get the directory and remove the file:// at the start of the path
-			directory = self.configmanager.settings['screenshot_directory'][7:]
+			directory = self.configmanager['screenshot_directory'][7:]
 			if not filename:
 				filename = time.strftime('%a %d %b %Y at %H-%M-%S.png')
 			filepath = os.path.join(directory, filename)

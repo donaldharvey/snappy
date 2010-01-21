@@ -58,57 +58,9 @@ def list_sharing_services():
 	return services
 
 def get_sharing_service_from_conf(configmanager):
-	module_name = configmanager.settings['sharing.sharingservice']
+	module_name = configmanager['sharing.sharingservice']
 	sharing_module = getattr(__import__('snappy.backend.httpstorage', fromlist=[module_name]), module_name)
 	for key, value in sharing_module.__dict__.iteritems():
 		if key.lower() == module_name.lower() + 'storage':
 			return value(configmanager)
 	raise NameError
-
-# Following utility methods are slightly modified from http://code.activestate.com/recipes/146306/.
-def post_multipart(url, fields, files):
-	"""
-	Post fields and files to an http host as multipart/form-data.
-	fields is a sequence of (name, value) elements for regular form fields.
-	files is a sequence of (name, filename, value) elements for data to be uploaded as files
-	Return the server's response page.
-	"""
-	import httplib
-	import urlparse
-	urlparts = urlparse.urlsplit(url)
-	host, selector = urlparts[1], urlparts[2]
-	content_type, body = _encode_multipart_formdata(fields, files)
-	h = httplib.HTTPConnection(host)
-	h.putrequest('POST', selector)
-	h.putheader('content-type', content_type)
-	h.putheader('content-length', str(len(body)))
-	h.endheaders()
-	h.send(body)
-	return h.getresponse()
-
-def _encode_multipart_formdata(fields, files):
-	"""
-	fields is a sequence of (name, value) elements for regular form fields.
-	files is a sequence of (name, filename, value) elements for data to be uploaded as files
-	Return (content_type, body) ready for httplib.HTTP instance
-	"""
-	BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
-	CRLF = '\r\n'
-	L = []
-	for (key, value) in fields:
-		L.append('--' + BOUNDARY)
-		L.append('Content-Disposition: form-data; name="%s"' % str(key))
-		L.append('')
-		L.append(str(value))
-	for (key, filename, value) in files:
-		L.append('--' + BOUNDARY)
-		L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (str(key), str(filename)))
-		mimetype = guess_type(filename)[0] or 'application/octet-stream'
-		L.append('Content-Type: %s' % mimetype)
-		L.append('')
-		L.append(str(value))
-	L.append('--' + BOUNDARY + '--')
-	L.append('')
-	body = CRLF.join(L)
-	content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
-	return content_type, body

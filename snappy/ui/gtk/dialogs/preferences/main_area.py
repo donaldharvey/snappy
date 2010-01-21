@@ -5,9 +5,9 @@ conf_manager = get_conf_manager()
 class MainAreaTab(PreferencesArea):
 	def startup(self):
 		print self.get_widget_by_name('quickshot')
-		for name, binding in conf_manager.settings['keyboard_shortcuts.*'].iteritems():
+		for name, binding in conf_manager['keyboard_shortcuts.*'].iteritems():
 			self.get_widget_by_name(name).set_text(binding)
-		self.get_widget_by_name('use_temp_directory').set_active(int(conf_manager.settings['use_temp_directory']))
+		self.get_widget_by_name('use_temp_directory').set_active(int(conf_manager['use_temp_directory']))
 		self.modifier_keyvals = (
 			'Control_L',
 			'Control_R',
@@ -38,7 +38,7 @@ class MainAreaTab(PreferencesArea):
 			widget.set_text(oldtext)
 		else:
 			global conf_manager
-			conf_manager.settings['keyboard_shortcuts.%s' % widget.get_name()] = widget.get_text()
+			conf_manager['keyboard_shortcuts.%s' % widget.get_name()] = widget.get_text()
 		widget.set_editable(True)
 
 	def kbd_entry_press(self, widget, event, data=None):
@@ -56,15 +56,15 @@ class MainAreaTab(PreferencesArea):
 		file_chooser = gtk.FileChooserDialog('Select a directory in which to save screenshots', widget.get_toplevel(),
 			gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK)
 		)
-		if conf_manager.settings['screenshot_directory']:
-			file_chooser.set_uri(conf_manager.settings['screenshot_directory'])
+		if conf_manager['screenshot_directory']:
+			file_chooser.set_uri(conf_manager['screenshot_directory'])
 		response = file_chooser.run()
 		if response == gtk.RESPONSE_OK:
 			file_chooser.hide()
-			conf_manager.settings['screenshot_directory'] = file_chooser.get_uri()
+			conf_manager['screenshot_directory'] = file_chooser.get_uri()
 			file_chooser.destroy()
 		else:
 			file_chooser.destroy()
 
 	def temp_directory_toggle(self, widget, data=None):
-		conf_manager.settings['use_temp_directory'] = str(int(widget.get_active()))
+		conf_manager['use_temp_directory'] = str(int(widget.get_active()))

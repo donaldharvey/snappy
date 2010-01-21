@@ -37,7 +37,7 @@ def list_url_shorteners():
 	return shorteners
 
 def get_url_shortener_from_conf(configmanager):
-	module_name = configmanager.settings['sharing.shortener']
+	module_name = configmanager['sharing.shortener']
 	if module_name == 'none':
 		return UrlProvider(configmanager)
 	else:

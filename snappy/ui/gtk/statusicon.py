@@ -86,7 +86,7 @@ class StatusIcon:
 	def __init__(self):
 		pynotify.init('Snappy Screen Capture')
 		mgr = get_conf_manager()
-		bindings = mgr.settings['keyboard_shortcuts.*']
+		bindings = mgr['keyboard_shortcuts.*']
 		for action_name, binding in bindings.iteritems():
 			# Set up the global key bindings.
 			action = action_name.split('_', 1)[1]

@@ -5,7 +5,7 @@ conf_manager = get_conf_manager()
 class TinyPicWindow(SharingWindow):
 	def startup(self):
 		self.data = {}
-		for key, value in conf_manager.settings['tinypic.*'].iteritems():
+		for key, value in conf_manager['tinypic.*'].iteritems():
 			self.get_widget_by_name(key).set_text(value)
 		self.get_widget_by_name('password').set_text(conf_manager.get_password('tinypic.password'))
 
@@ -17,5 +17,5 @@ class TinyPicWindow(SharingWindow):
 			if key == 'password':
 				conf_manager.set_password('tinypic.password', value)
 			else:
-				conf_manager.settings['tinypic.%s' % key] = value
+				conf_manager['tinypic.%s' % key] = value
 		self.close()
