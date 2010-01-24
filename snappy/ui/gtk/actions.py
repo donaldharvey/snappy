@@ -3,10 +3,10 @@ from screenshot import ScreenshotManager
 from snappy.backend.configmanagers import get_conf_manager
 from snappy.backend.httpstorage import get_sharing_service_from_conf, SharingError
 from snappy.backend.urlproviders import get_url_shortener_from_conf
-import pynotify
+from snappy.ui.gtk.statusicon import StatusIcon
 import gtk
 import gobject
-
+notify = StatusIcon().notify # Makes it a bit easier to write
 def _upload_file(filename):
 	"""
 	Upload the file `filename` to the configured sharing service, and shortens
@@ -26,8 +26,7 @@ def _upload_file(filename):
 			title = e.args[1]
 		except IndexError:
 			title = e.default_title
-		notification = pynotify.Notification(title, e.args[0])
-		notification.show()
+		notify(title, e.args[0])
 		return None
 	try:
 		# Get the short url
