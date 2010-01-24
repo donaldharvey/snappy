@@ -2,9 +2,9 @@ import urllib2
 from urllib import urlencode
 from snappy.backend.httpstorage import WebStorage, AuthError, ConnectionError, SharingError
 from snappy.backend.configmanagers import get_conf_manager
+from snappy.ui.gtk.statusicon import StatusIcon
 from snappy.globals import PATHS
 import xml.etree.cElementTree as ET
-import pynotify
 import gobject
 import os
 import time
@@ -153,8 +153,7 @@ class TwitPicStorage(WebStorage):
 			except SharingError, e:
 				e.notify_error()
 			else:
-				n = pynotify.Notification(twitter_result[0], twitter_result[1])
-				n.show()
+				StatusIcon().notify(twitter_result[0], twitter_result[1])
 			dialog.destroy()
 
 		return False

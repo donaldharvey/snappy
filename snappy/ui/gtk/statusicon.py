@@ -1,19 +1,55 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
+import gobject
 import pynotify
 import time
 import os
 import gst
 import webbrowser
+import platform
 from snappy.ui.gtk.keybindings import KeyBindingManager
 from snappy.backend.configmanagers import get_conf_manager
 from snappy.ui.gtk.dialogs.preferences import Preferences
 from snappy.ui.audioplayer import AudioPlayer
 from snappy.globals import PATHS
+from snappy.utils import Singleton
 import actions
 
-class StatusIcon:
+class SimpleGTKStatusIcon(gobject.GObject):
+	__gsignals__ = {
+		'activate': (gobject.SIGNAL_ACTION, gobject.TYPE_NONE, ()),
+		'popup_menu': (gobject.SIGNAL_ACTION, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_INT))
+	}
+	"""
+	A status icon class with only a few simple methods.
+	I created this primarly to be subclassed by the Win32StatusIcon class which
+	I've had to write from the ground up.
+	"""
+	def __init__(self):
+		self._statusicon = gtk.StatusIcon()
+		pynotify.init('Snappy screen capture')
+		self._statusicon.connect('activate', self._emit_proxy, 'activate')
+		self._statusicon.connect('popup_menu', self._emit_proxy, 'popup_menu')
+		self._statusicon.set_visible(True)
+		super(SimpleGTKStatusIcon, self).__init__()
+
+	def _emit_proxy(self, name='', *args, **kwargs):
+		args = list(args)
+		name = args.pop(-1)
+		self.emit(name, *args, **kwargs)
+
+	def set_icon_from_file(self, filename):
+		return self._statusicon.set_from_file(filename)
+
+	def notify(self, heading, content, icon=None):
+		n = pynotify.Notification(heading, content)
+		if icon:
+			n.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(icon))
+		n.show()
+
+
+class StatusIcon(object):
 	def popup(self, widget, button, time, menu=None):
 		"""Popup the menu."""
 		if button == 3:
@@ -25,13 +61,17 @@ class StatusIcon:
 	def destroy(self, widget, data=None):
 		gtk.main_quit()
 
+	def notify(self, *args, **kwargs):
+		"""Display a notification to the user."""
+		return self.statusicon.notify(*args, **kwargs)
+
 	def about(self, widget, data=None):
 		# For now, data is hardcoded in; later get these from setup.py
 		aboutdialog = gtk.AboutDialog()
 		aboutdialog.set_name('Snappy')
 		aboutdialog.set_version('0.1 Beta')
 		aboutdialog.set_copyright(u'Copyright \u00A9 2009-2010 Donald Harvey')
-		aboutdialog.set_comments('A quick, customisable and easy-to-use screen capture app for Linux.')
+		aboutdialog.set_comments('A quick, customisable and easy-to-use screen capture app for Linux and Windows.')
 		response = aboutdialog.run()
 		aboutdialog.destroy()
 
@@ -59,7 +99,7 @@ class StatusIcon:
 			# Play an alert sound.
 			self.player.play()
 			icon = os.path.join(PATHS['DATA_PATH'], 'uploaded.svg')
-			notification = pynotify.Notification('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result)
+			self.notify('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result, )
 			notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(icon))
 			notification.show()
 			if not self.recent_captures.props.sensitive:
@@ -84,7 +124,6 @@ class StatusIcon:
 		gtk.main()
 
 	def __init__(self):
-		pynotify.init('Snappy Screen Capture')
 		mgr = get_conf_manager()
 		bindings = mgr['keyboard_shortcuts.*']
 		for action_name, binding in bindings.iteritems():
@@ -92,16 +131,17 @@ class StatusIcon:
 			action = action_name.split('_', 1)[1]
 			KeyBindingManager().add_binding_from_string(binding, self.capture, (None, False, action))
 
-		self.statusicon = gtk.StatusIcon()
+		self.statusicon = SimpleGTKStatusIcon()
 		icon_file = os.path.join(PATHS['ICONS_PATH'], 'snappy24.png')
 		print icon_file
-		self.statusicon.set_from_file(icon_file)
+		self.statusicon.set_icon_from_file(icon_file)
 
 		# Set up the status icon menu with capture MenuItems
 		# and a 'Recent Captures' menu.
 		# It might be a good idea to move this out to a GtkBuilder file sometime.
 		uimanager = gtk.UIManager()
 		self.actiongroup = gtk.ActionGroup('MenuActions')
+
 		self.actiongroup.add_actions([
 			('recent_captures', None, '_Recent Captures', None, None, None),
 			('preferences', gtk.STOCK_PREFERENCES, '_Preferences...', None, None, self.preferences),
@@ -148,7 +188,8 @@ class StatusIcon:
 		audio_file = os.path.join(PATHS['DATA_PATH'], 'finished.wav')
 		audio_file = os.path.abspath(audio_file)
 		self.player = AudioPlayer(audio_file)
-		self.statusicon.set_visible(True)
+		#self.statusicon.set_visible(True)
+	__metaclass__ = Singleton
 
 if __name__ == '__main__':
 	gtk.gdk.threads_init()

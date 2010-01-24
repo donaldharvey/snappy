@@ -1,7 +1,7 @@
 import os
 from mimetypes import guess_type
 import httplib
-import pynotify
+from snappy.ui.gtk.statusicon import StatusIcon
 
 class SharingError(Exception):
 	default_title = 'Sharing Error'
@@ -15,8 +15,7 @@ class SharingError(Exception):
 			content = self.args[0]
 		except IndexError:
 			content = default_content
-		notification = pynotify.Notification(title, content)
-		notification.show()
+		StatusIcon().notify(title, content)
 		return None
 	pass
 
