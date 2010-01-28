@@ -4,7 +4,7 @@ conf_manager = get_conf_manager()
 class FTPWindow(SharingWindow):
 	def startup(self):
 		self.data = {}
-		for key, value in conf_manager.settings['ftp.*'].iteritems():
+		for key, value in conf_manager['ftp.*'].iteritems():
 			if key == 'use_sftp':
 				self.get_widget_by_name(key).set_active(bool(int(value)))
 			else:
@@ -18,5 +18,5 @@ class FTPWindow(SharingWindow):
 
 	def ok(self, widget, data=None):
 		for key, value in self.data.iteritems():
-			conf_manager.settings['ftp.%s' % key] = value
+			conf_manager['ftp.%s' % key] = value
 		self.close()

@@ -32,13 +32,13 @@ def search_for_packages():
 			if dirname.startswith('.'): del dirnames[i]
 		if '__init__.py' in filenames:
 			packages.append('.'.join(fullsplit(dirpath)))
-		return packages
+	return packages
 
 packages = search_for_packages()
 data = {
 	'name': 'snappy',
 	'fullname': 'Snappy Screen Capture',
-	'version': '0.1',
+	'version': '0.1b',
 	'author': 'Donald Harvey',
 	'author_email': 'donald@donaldharvey.co.uk',
 	'description': 'A quick, customisable and easy-to-use screen capture app for Linux.',
@@ -55,7 +55,7 @@ data = {
 		('share/icons/hicolor/64x64/apps', ['resources/64/snappy.png']),
 		('share/icons/hicolor/scalable/apps', ['resources/snappy.svg']),
 		('share/snappy/pixmaps', glob('resources/*.png')),
-		('share/snappy', ['resources/finished.wav', 'resources/uploaded.png']),
+		('share/snappy', ['resources/finished.wav', 'resources/uploaded.svg']),
 		('share/snappy/glade/preferences', glob('resources/glade/preferences/*.glade')),
 		('share/snappy/glade/preferences/sharing', glob('resources/glade/preferences/sharing/*.glade')),
 	],

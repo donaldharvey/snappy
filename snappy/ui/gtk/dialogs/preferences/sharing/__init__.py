@@ -24,20 +24,25 @@ class SharingTab(PreferencesArea):
 		self.get_toplevel()
 		self.setup_combo_box('url_shortener_service')
 		self.setup_combo_box('http_sharing_service')
-		is_anonymous = bool(int(conf_manager.settings['sharing.shortener_anonymous']))
+		is_anonymous = bool(int(conf_manager['sharing.shortener_anonymous']))
+		username = conf_manager['sharing.shortener_username']
+		password = conf_manager.get_password('sharing.shortener_password')
 		self.get_widget_by_name('sharing_url_use_anonymous').set_active(is_anonymous)
 		if is_anonymous:
 			self.get_widget_by_name('url_username').set_sensitive(False)
 			self.get_widget_by_name('url_password').set_sensitive(False)
+		else:
+			self.get_widget_by_name('url_username').set_text(username)
+			self.get_widget_by_name('url_password').set_text(password)
 
 	def setup_combo_box(self, widget_name):
 		#TODO: Sort out variable names and comment this function.
 		if 'url_shortener' in widget_name:
 			items = list_url_shorteners()
-			config_value = conf_manager.settings['sharing.shortener']
+			config_value = conf_manager['sharing.shortener']
 		else:
 			items = list_sharing_services()
-			config_value = conf_manager.settings['sharing.sharingservice']
+			config_value = conf_manager['sharing.sharingservice']
 		itemsliststore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
 		row_number = 0
 		selected_item = -1
@@ -61,9 +66,9 @@ class SharingTab(PreferencesArea):
 		if widget.get_name() == 'sharing_url_use_anonymous':
 			self.get_widget_by_name('url_username').set_sensitive(widget.get_active() == False)
 			self.get_widget_by_name('url_password').set_sensitive(widget.get_active() == False)
-			conf_manager.settings['sharing.shortener_anonymous'] = str(int(widget.get_active()))
+			conf_manager['sharing.shortener_anonymous'] = str(int(widget.get_active()))
 		elif widget.get_name() == 'url_username':
-			conf_manager.settings['sharing.shortener_username'] = widget.get_text()
+			conf_manager['sharing.shortener_username'] = widget.get_text()
 		elif widget.get_name() == 'url_password':
 			conf_manager.set_password('sharing.shortener_password', widget.get_text())
 
@@ -73,7 +78,7 @@ class SharingTab(PreferencesArea):
 			settingname = 'sharing.sharingservice'
 		else:
 			settingname = 'sharing.shortener'
-		conf_manager.settings[settingname] = model.get_value(widget.get_active_iter(), 1)
+		conf_manager[settingname] = model.get_value(widget.get_active_iter(), 1)
 
 	def open_sharing_window(self, widget, data=None):
 		combo = self.get_widget_by_name('http_sharing_service')

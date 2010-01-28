@@ -1,14 +1,15 @@
 import urllib2
 from urllib import urlencode
-from snappy.backend.httpstorage import WebStorage, AuthError, ConnectionError, SharingError, post_multipart
+from snappy.backend.httpstorage import WebStorage, AuthError, ConnectionError, SharingError
 from snappy.backend.configmanagers import get_conf_manager
+from snappy.ui.gtk.statusicon import StatusIcon
 from snappy.globals import PATHS
 import xml.etree.cElementTree as ET
-import pynotify
 import gobject
 import os
 import time
 import pango
+from snappy.utils import MultipartDataHandler
 configmanager = get_conf_manager
 import gtk
 
@@ -27,20 +28,17 @@ class TwitPicStorage(WebStorage):
 
 	def store(self, filepath):
 		TWITPIC_URL = 'http://twitpic.com/api/upload'
-		username = self.configmanager.settings['twitpic.username']
+		username = self.configmanager['twitpic.username']
 		password = self.configmanager.get_password('twitpic.password')
 		if not (username and password):
 			raise AuthError('A username and/or password has not been entered.')
-		f = open(filepath)
-		try:
-			image_data = f.read()
-		finally:
-			f.close()
-		fields = {
+		data = {
 			'username': username,
 			'password': password,
+			'media': open(filepath)
 		}
-		result = post_multipart(TWITPIC_URL, fields.items(), [('media', filepath, image_data)]).read()
+		opener = urllib2.build_opener(MultipartDataHandler)
+		result = opener.open(TWITPIC_URL, data)
 		print result
 		tree = ET.XML(result)
 		if tree.attrib.get('fail'):
@@ -58,7 +56,7 @@ class TwitPicStorage(WebStorage):
 
 	def twitter_post(self, status):
 		URL = 'https://twitter.com/statuses/update.xml'
-		username = self.configmanager.settings['twitpic.username']
+		username = self.configmanager['twitpic.username']
 		password = self.configmanager.get_password('twitpic.password')
 		if not (username and password):
 			raise AuthError('A username and/or password has not been entered.')
@@ -155,8 +153,7 @@ class TwitPicStorage(WebStorage):
 			except SharingError, e:
 				e.notify_error()
 			else:
-				n = pynotify.Notification(twitter_result[0], twitter_result[1])
-				n.show()
+				StatusIcon().notify(twitter_result[0], twitter_result[1])
 			dialog.destroy()
 
 		return False

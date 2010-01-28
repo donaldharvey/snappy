@@ -15,13 +15,13 @@ class FtpStorage(WebStorage):
 	}
 	def __init__(self, configmanager):
 		self.configmanager = configmanager
-		self.server = configmanager.settings['ftpstorage.server']
-		self.directory = configmanager.settings['ftpstorage.directory']
-		self.httplocation = configmanager.settings['ftpstorage.httplocation']
+		self.server = configmanager['ftpstorage.server']
+		self.directory = configmanager['ftpstorage.directory']
+		self.httplocation = configmanager['ftpstorage.httplocation']
 		super(FtpStorage, self).__init__()
 
 	def store(self, filepath):
-		username = self.configmanager.settings['ftpstorage.username']
+		username = self.configmanager['ftpstorage.username']
 		password = self.configmanager.get_password('ftpstorage.password')
 		ftp = FTP(self.server, username, password)
 		del password

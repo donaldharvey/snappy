@@ -16,11 +16,16 @@ class ConfigManager(object):
 		self.post_upload_hook = None
 
 	def set_password(self, key, password):
-		self.settings[key] = password
+		self[key] = password
 
 	def get_password(self, key):
-		return self.settings[key]
+		return self[key]
 
 	def set_post_upload_hook(self, func):
 		self.post_upload_hook = func
 
+	def __getitem__(self, key):
+		return self.settings[key]
+
+	def __setitem__(self, key, value):
+		self.settings[key] = value
