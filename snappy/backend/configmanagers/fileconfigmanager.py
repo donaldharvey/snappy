@@ -5,7 +5,7 @@ import os
 from Crypto.Cipher import Blowfish #for password storage
 from hashlib import sha1
 from random import randrange
-
+from base64 import encodestring as b64enc, decodestring as b64dec
 def app_data_dir(appname='snappy'):
 	'''
 	Returns (and creates if it does not exist) the application's data directory for all 3 major platforms.
@@ -53,17 +53,19 @@ class FileConfigManager(ConfigManager):
 		bf = Blowfish.new(cryptkey, Blowfish.MODE_ECB)
 		encrypted_pass = bf.encrypt(self._pad_pass(password))
 		del password
-		self[cryptkey] = encrypted_pass
+		self[cryptkey] = b64enc(encrypted_pass)
 
 	def get_password(self, key):
 		cryptkey = sha1(key).hexdigest()
 		bf = Blowfish.new(cryptkey, Blowfish.MODE_ECB)
-		encrypted_pass = self[cryptkey]
+		try:
+			encrypted_pass = b64dec(self[cryptkey])
+		except Exception:
+			return ''
 		try:
 			decrypted_pass = self._depad_pass(bf.decrypt(encrypted_pass))
-		except TypeError:
-			decrypted_pass = ''
-		return decrypted_pass
+		except Exception:
+			return ''
 
 class FileConfigDict(ConfigDict):
 	def __init__(self):

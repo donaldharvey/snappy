@@ -25,8 +25,8 @@ class SharingTab(PreferencesArea):
 		self.setup_combo_box('url_shortener_service')
 		self.setup_combo_box('http_sharing_service')
 		is_anonymous = bool(int(conf_manager['sharing.shortener_anonymous']))
-		username = conf_manager['sharing.shortener_username']
-		password = conf_manager.get_password('sharing.shortener_password')
+		username = conf_manager['sharing.shortener_username'] or ''
+		password = conf_manager.get_password('sharing.shortener_password') or ''
 		self.get_widget_by_name('sharing_url_use_anonymous').set_active(is_anonymous)
 		if is_anonymous:
 			self.get_widget_by_name('url_username').set_sensitive(False)
