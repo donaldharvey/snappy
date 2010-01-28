@@ -8,13 +8,10 @@ import os
 import gst
 import webbrowser
 import platform
-from snappy.ui.gtk.keybindings import KeyBindingManager
-from snappy.backend.configmanagers import get_conf_manager
-from snappy.ui.gtk.dialogs.preferences import Preferences
-from snappy.ui.audioplayer import AudioPlayer
-from snappy.globals import PATHS
+# Some of the snappy absolute imports are at the bottom of the file due to a
+# circular import issue. I'll have to separate the notification code better
+# somehow; this'll do for now.
 from snappy.utils import Singleton
-import actions
 
 class SimpleGTKStatusIcon(gobject.GObject):
 	__gsignals__ = {
@@ -190,6 +187,13 @@ class StatusIcon(object):
 		self.player = AudioPlayer(audio_file)
 		#self.statusicon.set_visible(True)
 	__metaclass__ = Singleton
+
+from snappy.ui.gtk.keybindings import KeyBindingManager
+from snappy.backend.configmanagers import get_conf_manager
+from snappy.ui.gtk.dialogs.preferences import Preferences
+from snappy.ui.audioplayer import AudioPlayer
+from snappy.globals import PATHS
+from snappy.ui.gtk import actions
 
 if __name__ == '__main__':
 	gtk.gdk.threads_init()
