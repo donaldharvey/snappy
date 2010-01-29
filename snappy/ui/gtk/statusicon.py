@@ -96,9 +96,7 @@ class StatusIcon(object):
 			# Play an alert sound.
 			self.player.play()
 			icon = os.path.join(PATHS['DATA_PATH'], 'uploaded.svg')
-			self.notify('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result, )
-			notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(icon))
-			notification.show()
+			self.notify('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result, icon)
 			if not self.recent_captures.props.sensitive:
 				self.recent_captures.set_sensitive(True)
 				# For some reason the UI manager adds an 'Empty' menuitem to the RecentCaptures menu.

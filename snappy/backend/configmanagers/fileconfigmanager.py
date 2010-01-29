@@ -64,6 +64,7 @@ class FileConfigManager(ConfigManager):
 			return ''
 		try:
 			decrypted_pass = self._depad_pass(bf.decrypt(encrypted_pass))
+			return decrypted_pass
 		except Exception:
 			return ''
 
