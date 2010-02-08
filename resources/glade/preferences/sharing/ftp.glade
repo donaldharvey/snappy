@@ -4,6 +4,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkDialog" id="ftp_window">
     <property name="border_width">5</property>
+    <property name="resizable">False</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
@@ -180,19 +181,6 @@
                 <property name="position">4</property>
               </packing>
             </child>
-            <child>
-              <object class="GtkCheckButton" id="use_sftp">
-                <property name="label" translatable="yes">Use SFTP instead of normal FTP</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="value_changed"/>
-              </object>
-              <packing>
-                <property name="position">5</property>
-              </packing>
-            </child>
           </object>
           <packing>
             <property name="position">1</property>
@@ -203,13 +191,13 @@
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button1">
-                <property name="label" translatable="yes">OK</property>
+              <object class="GtkButton" id="button2">
+                <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="ok"/>
-                <signal name="activate" handler="ok"/>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="close"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -218,12 +206,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button2">
-                <property name="label" translatable="yes">Cancel</property>
+              <object class="GtkButton" id="button1">
+                <property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="close"/>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="ok"/>
+                <signal name="activate" handler="ok"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -241,8 +231,8 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">button1</action-widget>
       <action-widget response="0">button2</action-widget>
+      <action-widget response="0">button1</action-widget>
     </action-widgets>
   </object>
 </interface>

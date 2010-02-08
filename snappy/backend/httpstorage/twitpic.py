@@ -38,10 +38,9 @@ class TwitPicStorage(WebStorage):
 			'media': open(filepath)
 		}
 		opener = urllib2.build_opener(MultipartDataHandler)
-		result = opener.open(TWITPIC_URL, data)
-		print result
+		result = opener.open(TWITPIC_URL, data).read()
 		tree = ET.XML(result)
-		if tree.attrib.get('fail'):
+		if tree.attrib.get('stat') == 'fail':
 			code = tree.find('err').attrib['code']
 			message = tree.find('err').attrib['msg']
 			if code == '1001':
