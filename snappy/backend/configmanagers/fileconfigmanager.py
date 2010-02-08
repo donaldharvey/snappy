@@ -100,9 +100,13 @@ class FileConfigDict(ConfigDict):
 					opts_dict[opt_name] = self.parser.get(section, opt_name)
 			return opts_dict
 		try:
-			return self.parser.get(section, option)
+			result = self.parser.get(section, option)
 		except Exception:
-			return self.defaults.get(key)
+			result = self.defaults.get(key)
+		if result == None:
+			return ''
+		else:
+			return result
 
 	def __setitem__(self, key, value):
 		try:
