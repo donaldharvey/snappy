@@ -1,6 +1,7 @@
 import gtk
 from snappy.backend.configmanagers import get_conf_manager
 from snappy.ui.gtk.dialogs.preferences import PreferencesArea
+from snappy.ui.gtk.keybindings import KeyBindingManager
 conf_manager = get_conf_manager()
 class MainAreaTab(PreferencesArea):
 	def startup(self):
@@ -25,6 +26,7 @@ class MainAreaTab(PreferencesArea):
 			self.modifiers_mask |= modifier
 
 	def kbd_entry_focus(self, widget, event, data=None):
+		KeyBindingManager().ungrab()
 		gtk.gdk.keyboard_grab(widget.window)
 		global oldtext
 		oldtext = widget.get_text()
@@ -40,6 +42,10 @@ class MainAreaTab(PreferencesArea):
 			global conf_manager
 			conf_manager['keyboard_shortcuts.%s' % widget.get_name()] = widget.get_text()
 		widget.set_editable(True)
+		from snappy.ui.gtk.statusicon import StatusIcon
+		KeyBindingManager()._binding_map.clear()
+		StatusIcon()._setup_bindings()
+		KeyBindingManager().grab()
 
 	def kbd_entry_press(self, widget, event, data=None):
 		# capture keypresses here

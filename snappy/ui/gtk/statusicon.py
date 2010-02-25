@@ -123,7 +123,7 @@ class StatusIcon(object):
 		KeyBindingManager().start()
 		gtk.main()
 
-	def __init__(self):
+	def _setup_bindings(self):
 		mgr = get_conf_manager()
 		bindings = mgr['keyboard_shortcuts.*']
 		for action_name, binding in bindings.iteritems():
@@ -131,6 +131,9 @@ class StatusIcon(object):
 			action = action_name.split('_', 1)[1]
 			KeyBindingManager().add_binding_from_string(binding, self.capture, (None, False, action))
 
+
+	def __init__(self):
+		self._setup_bindings()
 		self.statusicon = SimpleGTKStatusIcon()
 		icon_file = os.path.join(PATHS['ICONS_PATH'], 'snappy24.png')
 		self.statusicon.set_icon_from_file(icon_file)
