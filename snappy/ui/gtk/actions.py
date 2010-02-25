@@ -4,8 +4,14 @@ from snappy.backend.configmanagers import get_conf_manager
 from snappy.backend.httpstorage import get_sharing_service_from_conf, SharingError
 from snappy.backend.urlproviders import get_url_shortener_from_conf
 from snappy.ui.gtk.statusicon import StatusIcon
+from threading import Timer
 import gtk
 import gobject
+import os
+from snappy.globals import PATHS
+from socket import setdefaulttimeout
+from urllib2 import URLError
+setdefaulttimeout(120)
 notify = StatusIcon().notify # Makes it a bit easier to write
 def _upload_file(filename):
 	"""
@@ -18,15 +24,26 @@ def _upload_file(filename):
 	sharingservice = get_sharing_service_from_conf(configmanager)
 	urlprovider = get_url_shortener_from_conf(configmanager)
 	try:
+		StatusIcon().statusicon.set_icon_from_file(os.path.join(PATHS['ICONS_PATH'], 'icon-uploading.png'))
 		# Store the file online
 		url = sharingservice.store(filename)
 		print 'Saved to', url
-	except SharingError, e:
-		try:
-			title = e.args[1]
-		except IndexError:
-			title = e.default_title
-		notify(title, e.args[0])
+	except Exception, e:
+		import traceback
+		traceback.print_exc()
+		print type(e)
+		if isinstance(e, SharingError):
+			try:
+				title = e.args[1]
+			except IndexError:
+				title = e.default_title
+			notify(title, e.args[0])
+		elif isinstance(e, URLError):
+			notify('Connection error', 'You may be disconnected from the internet, or the server you are using may be down.')
+		StatusIcon().statusicon.set_icon_from_file(os.path.join(PATHS['ICONS_PATH'], 'icon-uploadfailed.png'))
+		timer = Timer(5, StatusIcon().reset_icon)
+		timer.setDaemon(True)
+		timer.start()
 		return None
 	try:
 		# Get the short url
@@ -37,6 +54,10 @@ def _upload_file(filename):
 	# Finally, add it to the clipboard.
 	clipboard = gtk.clipboard_get('CLIPBOARD')
 	clipboard.set_text(shorturl)
+	StatusIcon().statusicon.set_icon_from_file(os.path.join(PATHS['ICONS_PATH'], 'icon-uploadfinished.png'))
+	timer = Timer(5, StatusIcon().reset_icon)
+	timer.setDaemon(True)
+	timer.start()
 
 	# Run post-upload hook
 	try:

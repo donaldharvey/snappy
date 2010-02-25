@@ -18,7 +18,6 @@ class BitlyUrlProvider(UrlProvider):
 		'bitly.api_key': 'R_39a6bde2bd0bf72d4f91d89e6e9f264f',
 	}
 	def shorten(self, url):
-		print 'Trying to shorten %s' % url
 		socket.setdefaulttimeout(7.5)
 		login = self.configmanager['sharing.shortener_username']
 		use_anonymous = int(self.configmanager['sharing.shortener_anonymous'])
@@ -43,11 +42,15 @@ class BitlyUrlProvider(UrlProvider):
 			return response['results'].values()[0]['shortUrl']
 		elif response['errorCode'] == 203:
 			password = self.configmanager.get_password('sharing.shortener_password')
-			possible_new_key = self.get_api_key_from_login(login, password)
+			try:
+				possible_new_key = self.get_api_key_from_login(login, password)
+			except AuthError:
+				return super(BitlyUrlProvider, self).shorten(url)
+			print possible_new_key
 			if possible_new_key != api_key:
 				# Looks like the user has reset their API key. Get a new one.
 				self.configmanager['bitly.api_key'] = possible_new_key
-				print possible_new_key
+				return self.shorten(url)
 			else:
 				# User has not reset their API key. Give up.
 				return super(BitlyUrlProvider, self).shorten(url)

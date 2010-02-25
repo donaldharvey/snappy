@@ -4,7 +4,7 @@ from urllib import basejoin
 from time import strftime
 from snappy.backend.httpstorage import WebStorage
 class FtpStorage(WebStorage):
-	nice_name = 'FTP/SFTP-based Storage'
+	nice_name = 'FTP-based Storage'
 	defaults = {
 		'ftp.server': None,
 		'ftp.username': None,

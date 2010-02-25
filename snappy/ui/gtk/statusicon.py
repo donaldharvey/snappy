@@ -40,10 +40,10 @@ class SimpleGTKStatusIcon(gobject.GObject):
 		return self._statusicon.set_from_file(filename)
 
 	def notify(self, heading, content, icon=None):
-		n = pynotify.Notification(heading, content)
+		notification = pynotify.Notification(heading, content)
 		if icon:
-			n.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(icon))
-		n.show()
+			notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(icon))
+		notification.show()
 
 
 class StatusIcon(object):
@@ -72,6 +72,12 @@ class StatusIcon(object):
 		response = aboutdialog.run()
 		aboutdialog.destroy()
 
+	def reset_icon(self):
+		"""Reset the icon to its normal state."""
+		gtk.gdk.threads_enter()
+		self.statusicon.set_icon_from_file(os.path.join(PATHS['ICONS_PATH'], 'snappy24.png'))
+		gtk.gdk.threads_leave()
+
 	def capture(self, widget=None, from_menu=False, type='area'):
 		"""
 		The handler for all three types of screen capture.
@@ -85,7 +91,6 @@ class StatusIcon(object):
 			time.sleep(0.5)
 		capture_function = getattr(actions, 'capture_%s' % type)
 		result = capture_function()
-		print result
 		if result is not None:
 			# If the result is None, the user must have cancelled the capture.
 			def menuitem_cb(widget, data=None):
@@ -96,9 +101,7 @@ class StatusIcon(object):
 			# Play an alert sound.
 			self.player.play()
 			icon = os.path.join(PATHS['DATA_PATH'], 'uploaded.svg')
-			self.notify('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result, )
-			notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(icon))
-			notification.show()
+			self.notify('Image uploaded', 'Snappy uploaded your screenshot to %s.' % result, icon)
 			if not self.recent_captures.props.sensitive:
 				self.recent_captures.set_sensitive(True)
 				# For some reason the UI manager adds an 'Empty' menuitem to the RecentCaptures menu.
@@ -120,7 +123,7 @@ class StatusIcon(object):
 		KeyBindingManager().start()
 		gtk.main()
 
-	def __init__(self):
+	def _setup_bindings(self):
 		mgr = get_conf_manager()
 		bindings = mgr['keyboard_shortcuts.*']
 		for action_name, binding in bindings.iteritems():
@@ -128,9 +131,11 @@ class StatusIcon(object):
 			action = action_name.split('_', 1)[1]
 			KeyBindingManager().add_binding_from_string(binding, self.capture, (None, False, action))
 
+
+	def __init__(self):
+		self._setup_bindings()
 		self.statusicon = SimpleGTKStatusIcon()
 		icon_file = os.path.join(PATHS['ICONS_PATH'], 'snappy24.png')
-		print icon_file
 		self.statusicon.set_icon_from_file(icon_file)
 
 		# Set up the status icon menu with capture MenuItems
